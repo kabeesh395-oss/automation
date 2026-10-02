@@ -111,6 +111,9 @@ server.listen(4000, () => console.log('listening on 4000'));
   const adapter = new BackendAdapter(backendDir);
   const result = adapter.runVerification('node server.js', 'http://localhost:4000', '/');
   
+  if (!result.ok) {
+    console.error('Backend test result:', result);
+  }
   assert.strictEqual(result.ok, true, 'Expected backend test to pass');
   assert.strictEqual(result.status, 200, 'Expected status 200');
   assert.ok(result.data.includes('success'), 'Expected success payload');
