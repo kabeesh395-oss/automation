@@ -1,0 +1,20 @@
+{
+  "name": "jarvis",
+  "version": "0.1.0",
+  "description": "JARVIS — Autonomous Software-Development Orchestrator",
+  "type": "module",
+  "main": "core/orchestrator.js",
+  "bin": {
+    "jarvis": "./cli.js"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "jarvis": "node cli.js",
+    "build": "node cli.js build",
+    "validate": "node core/protocol/validator.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "private": true
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "E-625170",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:40:25.170Z"
+  }
+]

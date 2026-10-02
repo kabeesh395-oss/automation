@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "id": "PRJ-MUQJAZM1",
+    "name": "",
+    "target": "web",
+    "user_request": "Create a web app with a home screen and a button",
+    "created": "2026-10-02T05:40:26.185Z"
+  },
+  "environment": {
+    "node_version": "v24.19.0",
+    "platform": "win32",
+    "tools_available": [],
+    "tools_missing": [],
+    "limitations": []
+  },
+  "phase": "init",
+  "phases_completed": [],
+  "tasks": [
+    {
+      "task_id": "T-626200",
+      "description": "Initialize web project structure",
+      "role": "frontend_engineer",
+      "depends_on": [],
+      "status": "pending",
+      "inputs": [
+        {
+          "language": "javascript",
+          "framework": "vanilla"
+        }
+      ],
+      "acceptance": [
+        "Project directory created",
+        "Base files generated"
+      ],
+      "output": null,
+      "files_changed": [],
+      "verification": "pending",
+      "retry_count": 0,
+      "errors": [],
+      "created": "2026-10-02T05:40:26.200Z",
+      "started": null,
+      "completed": null
+    },
+    {
+      "task_id": "T-626200",
+      "description": "Implement: feature-a — Feature A",
+      "role": "frontend_engineer",
+      "depends_on": [
+        "T-626200"
+      ],
+      "status": "pending",
+      "inputs": [
+        {
+          "name": "feature-a",
+          "description": "Feature A"
+        }
+      ],
+      "acceptance": [
+        "feature-a feature works as described"
+      ],
+      "output": null,
+      "files_changed": [],
+      "verification": "pending",
+      "retry_count": 0,
+      "errors": [],
+      "created": "2026-10-02T05:40:26.200Z",
+      "started": null,
+      "completed": null
+    },
+    {
+      "task_id": "T-626201",
+      "description": "Write and run tests for implemented features",
+      "role": "qa_test_engineer",
+      "depends_on": [
+        "T-626200"
+      ],
+      "status": "pending",
+      "inputs": [
+        {
+          "name": "feature-a",
+          "description": "Feature A"
+        }
+      ],
+      "acceptance": [
+        "Tests exist",
+        "Tests pass"
+      ],
+      "output": null,
+      "files_changed": [],
+      "verification": "pending",
+      "retry_count": 0,
+      "errors": [],
+      "created": "2026-10-02T05:40:26.201Z",
+      "started": null,
+      "completed": null
+    },
+    {
+      "task_id": "T-626201",
+      "description": "Build the web project and verify it compiles",
+      "role": "build_release_engineer",
+      "depends_on": [
+        "T-626201"
+      ],
+      "status": "pending",
+      "inputs": [
+        {
+          "language": "javascript",
+          "framework": "vanilla"
+        }
+      ],
+      "acceptance": [
+        "Build succeeds with exit code 0"
+      ],
+      "output": null,
+      "files_changed": [],
+      "verification": "pending",
+      "retry_count": 0,
+      "errors": [],
+      "created": "2026-10-02T05:40:26.201Z",
+      "started": null,
+      "completed": null
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D-muqjazma",
+      "decision": "Stack: {\"language\":\"javascript\",\"framework\":\"vanilla\",\"build\":\"none\",\"test\":\"node-test\"}",
+      "reason": "Best fit for web target",
+      "date": "2026-10-02T05:40:26.194Z"
+    }
+  ],
+  "requirements": {
+    "target": "web",
+    "user_request": "Create a web app with a home screen and a button",
+    "features": [
+      {
+        "name": "home-screen",
+        "description": "Home/main screen of the application",
+        "priority": "must"
+      },
+      {
+        "name": "button-interaction",
+        "description": "Interactive button element",
+        "priority": "must"
+      }
+    ],
+    "non_functional": [
+      {
+        "name": "buildable",
+        "description": "Project must compile/build without errors"
+      },
+      {
+        "name": "testable",
+        "description": "Core features must have tests"
+      }
+    ],
+    "constraints": [],
+    "created": "2026-10-02T05:40:26.187Z"
+  },
+  "architecture": {
+    "target": "web",
+    "stack": {
+      "language": "javascript",
+      "framework": "vanilla",
+      "build": "none",
+      "test": "node-test"
+    },
+    "components": [
+      {
+        "name": "home-screen",
+        "type": "frontend",
+        "description": "Home screen"
+      }
+    ],
+    "api_contracts": [],
+    "decisions": [],
+    "created": "2026-10-02T05:40:26.193Z"
+  },
+  "implementation_plan": {
+    "total_tasks": 4,
+    "roles_needed": [
+      "product_analyst",
+      "software_architect",
+      "frontend_engineer",
+      "qa_test_engineer",
+      "security_engineer",
+      "build_release_engineer",
+      "code_reviewer"
+    ],
+    "created": "2026-10-02T05:40:26.202Z"
+  },
+  "test_results": {
+    "last_run": "",
+    "passed": 0,
+    "failed": 0,
+    "log": ""
+  },
+  "build_results": {
+    "last_run": "",
+    "status": "",
+    "log": "",
+    "artifact": ""
+  },
+  "known_limitations": [],
+  "not_implemented": [],
+  "files_changed": [],
+  "git": {
+    "branch": "",
+    "head": "",
+    "dirty": false,
+    "pr_url": ""
+  },
+  "gates": {
+    "g1_requirements": "pending",
+    "g2_build": "pending",
+    "g3_tests": "pending",
+    "g4_runtime": "pending",
+    "g5_feature": "pending",
+    "g6_security": "pending",
+    "g7_release": "pending"
+  },
+  "gate_evidence": {},
+  "errors": [],
+  "retry_counts": {},
+  "blockers": [],
+  "updated": "2026-10-02T05:40:26.204Z"
+}

@@ -1,0 +1,8 @@
+node_modules/
+state/artifacts/
+state/activity.log
+state/activity.jsonl
+.env
+*.log
+dist/
+poc-workspace/
