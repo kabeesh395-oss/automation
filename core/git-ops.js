@@ -29,7 +29,7 @@ function git(args, cwd) {
 
 /** Check if the given directory is a git repo */
 export function isGitRepo(cwd) {
-  if (cwd && existsSync(join(cwd, '.git'))) return true;
+  if (cwd) return existsSync(join(cwd, '.git'));
   const result = git('rev-parse --is-inside-work-tree', cwd);
   return result.ok && result.output === 'true';
 }
@@ -43,6 +43,8 @@ export function initRepo(cwd) {
   const result = git('init', cwd);
   if (result.ok) {
     logGit('Initialized git repository');
+    git('config user.email "jarvis@automation.local"', cwd);
+    git('config user.name "JARVIS"', cwd);
     // Create development branch
     git('checkout -b development', cwd);
     logGit('Created and switched to development branch');

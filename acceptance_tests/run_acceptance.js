@@ -162,7 +162,10 @@ async function testGitSafety() {
   console.log('\n--- GIT SAFETY & RECOVERY TEST ---');
   const { createCheckpoint, rollbackToCheckpoint, initRepo } = await import('../core/git-ops.js');
   const gitDir = resolve(import.meta.dirname, 'test_git');
-  if (!fs.existsSync(gitDir)) fs.mkdirSync(gitDir);
+  if (fs.existsSync(gitDir)) {
+    fs.rmSync(gitDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(gitDir, { recursive: true });
   initRepo(gitDir);
   
   const file1 = join(gitDir, 'app.js');
@@ -185,6 +188,9 @@ async function testGitSafety() {
   
   const restored = fs.readFileSync(file1, 'utf-8');
   console.log('App restored:', restored.includes('version 1'));
+
+  // Clean up isolated test repo
+  try { fs.rmSync(gitDir, { recursive: true, force: true }); } catch {}
 }
 
 async function testResume() {
