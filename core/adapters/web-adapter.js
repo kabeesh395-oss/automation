@@ -16,7 +16,7 @@ export class WebAdapter {
    */
   isToolingAvailable() {
     try {
-      execSync('npx playwright --version', { cwd: this.workspaceDir, stdio: 'ignore' });
+      execSync('node -e "require(\'playwright\')"', { cwd: this.workspaceDir, stdio: 'ignore' });
       return true;
     } catch {
       return false;
