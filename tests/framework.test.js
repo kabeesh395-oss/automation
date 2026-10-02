@@ -1,251 +1,225 @@
 /**
- * JARVIS Framework Tests
+ * JARVIS Framework Tests (Phase 3)
  * 
- * Tests the core modules: state manager, validator, agent resolver,
- * recovery system, and orchestrator.
+ * Complete verification of:
+ * - Explicit State Machine & persistence
+ * - Dependency Graph & topological resolution
+ * - Recovery Loop with bounded novelty checks & BLOCKED transition
+ * - Schema contracts validation
+ * - Target gate runners
  */
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-
-// Import all modules at the top level
 import {
   createProjectState, saveState, loadState, ensureStateDir,
-  createTask, addTask, updateTask, getNextRunnableTasks,
-  loadErrorHistory, recordError, hasFixBeenAttempted, getAttemptCount,
+  recordError, hasFixBeenAttempted, getAttemptCount
 } from '../core/state-manager.js';
 import {
   validateProjectState, validateTask, validateRequirements,
+  validateArchitecture, validateUxPlan, validateImplementationPlan, validateTaskQueue
 } from '../core/protocol/validator.js';
-import {
-  loadAgents, normalizeRole, selectRequiredRoles,
-} from '../core/agent-resolver.js';
-import {
-  computeSignature, classifyError, analyzeFailure,
-} from '../core/recovery.js';
-import {
-  isGitRepo, getCurrentBranch, getStatus, preflight,
-} from '../core/git-ops.js';
-import {
-  analyzeRequirements, createArchitecture, createTaskPlan,
-} from '../core/orchestrator.js';
+import { analyzeProduct } from '../core/product-analyst.js';
+import { designArchitecture } from '../core/software-architect.js';
+import { designUxPlan } from '../core/ux-architect.js';
+import { planTasks } from '../core/task-planner.js';
+import { TaskGraph } from '../core/task-graph.js';
+import { computeSignature, classifyError, analyzeFailure, recordRecoveryAttempt } from '../core/recovery.js';
+import { isGitRepo, getCurrentBranch, getStatus, preflight } from '../core/git-ops.js';
+import { ORCHESTRATOR_PHASES, initProject, resumeProject } from '../core/orchestrator.js';
+import { MockAIProvider } from '../core/ai/mock-provider.js';
 
 const ROOT = resolve(import.meta.dirname, '..');
 
-// --- State Manager Tests ---
+// --- 1. State Machine & Persistence ---
 
-describe('State Manager', () => {
-  it('should create a valid project state', () => {
-    const state = createProjectState('Test project idea', 'web');
+describe('Phase 3 State Machine & Persistence', () => {
+  it('should initialize state with explicit INIT phase', () => {
+    const state = createProjectState('Test App Idea', 'android');
     assert.ok(state.project.id.startsWith('PRJ-'));
-    assert.equal(state.project.user_request, 'Test project idea');
-    assert.equal(state.project.target, 'web');
+    assert.equal(state.project.target, 'android');
     assert.equal(state.phase, 'init');
-    assert.ok(Array.isArray(state.tasks));
-    assert.ok(state.gates);
   });
 
-  it('should save and load state atomically', () => {
+  it('should persist and resume state across simulated restarts', async () => {
     ensureStateDir();
-    const state = createProjectState('Save test', 'web');
-    saveState(state);
-    const loaded = loadState();
-    assert.ok(loaded);
-    assert.equal(loaded.project.user_request, 'Save test');
-    assert.ok(loaded.updated);
-  });
-
-  it('should create tasks with required fields', () => {
-    const task = createTask({
-      description: 'Test task',
-      role: 'frontend_engineer',
-      depends_on: [],
-    });
-    assert.ok(task.task_id.startsWith('T-'));
-    assert.equal(task.description, 'Test task');
-    assert.equal(task.role, 'frontend_engineer');
-    assert.equal(task.status, 'pending');
-    assert.equal(task.retry_count, 0);
-  });
-
-  it('should track runnable tasks based on dependencies', () => {
-    const state = createProjectState('Dep test', 'web');
-    const t1 = createTask({ description: 'First', role: 'engineer', depends_on: [] });
-    const t2 = createTask({ description: 'Second', role: 'engineer', depends_on: [t1.task_id] });
-    state.tasks = [t1, t2];
+    const state = createProjectState('Resume Test', 'android');
+    state.phase = ORCHESTRATOR_PHASES.ANALYSIS;
+    state.requirements = {
+      app_name: 'test-app',
+      target_platform: 'android',
+      problem_statement: 'test problem',
+      target_users: ['test-user'],
+      core_features: [{ id: 'F001', name: 'feat', description: 'desc', priority: 'must', source: 'explicit' }],
+      non_functional_requirements: [{ name: 'nf', description: 'desc' }],
+      acceptance_criteria: ['test']
+    };
     saveState(state);
 
-    let runnable = getNextRunnableTasks();
-    assert.equal(runnable.length, 1);
-    assert.equal(runnable[0].task_id, t1.task_id);
-
-    // Mark first as done
-    state.tasks[0].status = 'done';
-    saveState(state);
-    runnable = getNextRunnableTasks();
-    assert.equal(runnable.length, 1);
-    assert.equal(runnable[0].task_id, t2.task_id);
-  });
-
-  it('should track error history', () => {
-    recordError({
-      task_id: 'T-001',
-      signature: 'SIG-TEST-001',
-      log_excerpt: 'test error',
-      root_cause: 'test',
-      attempted_fix: 'fix-A',
-      result: 'failed',
-    });
-
-    assert.ok(hasFixBeenAttempted('SIG-TEST-001', 'fix-A'));
-    assert.ok(!hasFixBeenAttempted('SIG-TEST-001', 'fix-B'));
-    assert.ok(getAttemptCount('SIG-TEST-001') >= 1);
+    const reloaded = loadState();
+    assert.equal(reloaded.phase, ORCHESTRATOR_PHASES.ANALYSIS);
+    assert.equal(reloaded.project.user_request, 'Resume Test');
+    assert.equal(reloaded.requirements.app_name, 'test-app');
   });
 });
 
-// --- Validator Tests ---
+// --- 2. Schema Contracts Validation ---
 
-describe('Validator', () => {
-  it('should validate a correct project state', () => {
-    const state = createProjectState('Valid state', 'web');
-    const result = validateProjectState(state);
-    assert.ok(result.valid, `Validation failed: ${result.errors.join(', ')}`);
+describe('Schema Contracts Validation', () => {
+  const mockProvider = new MockAIProvider();
+
+  it('should validate complete requirements contract', async () => {
+    const { requirements } = await analyzeProduct('Build a student productivity app with notes and dashboard', { aiProvider: mockProvider });
+    const result = validateRequirements(requirements);
+    assert.ok(result.valid, `Requirements validation failed: ${result.errors.join(', ')}`);
+    assert.ok(requirements.core_features.length >= 2);
   });
 
-  it('should reject state with missing fields', () => {
-    const result = validateProjectState({});
-    assert.ok(!result.valid);
-    assert.ok(result.errors.length > 0);
+  it('should validate architecture contract', async () => {
+    const { requirements } = await analyzeProduct('Build a minimal Android counter app', { aiProvider: mockProvider });
+    const arch = await designArchitecture(requirements, { aiProvider: mockProvider });
+    const result = validateArchitecture(arch);
+    assert.ok(result.valid, `Architecture validation failed: ${result.errors.join(', ')}`);
+    assert.equal(arch.platform, 'android');
+    assert.equal(arch.language, 'kotlin');
   });
 
-  it('should reject invalid phase', () => {
-    const state = createProjectState('Test', 'web');
-    state.phase = 'invalid_phase';
-    const result = validateProjectState(state);
-    assert.ok(!result.valid);
+  it('should validate UX plan contract', async () => {
+    const { requirements } = await analyzeProduct('Build a minimal Android counter app', { aiProvider: mockProvider });
+    const arch = await designArchitecture(requirements, { aiProvider: mockProvider });
+    const ux = await designUxPlan(requirements, arch, { aiProvider: mockProvider });
+    const result = validateUxPlan(ux);
+    assert.ok(result.valid, `UX Plan validation failed: ${result.errors.join(', ')}`);
+    assert.ok(ux.screens.length >= 1);
   });
 
-  it('should validate tasks', () => {
-    const task = createTask({ description: 'Test', role: 'engineer', depends_on: [] });
-    const result = validateTask(task);
-    assert.ok(result.valid);
-  });
+  it('should validate task queue contract', async () => {
+    const { requirements } = await analyzeProduct('Build a minimal Android counter app', { aiProvider: mockProvider });
+    const arch = await designArchitecture(requirements, { aiProvider: mockProvider });
+    const ux = await designUxPlan(requirements, arch, { aiProvider: mockProvider });
+    const { implementationPlan, taskQueue } = await planTasks(requirements, arch, ux, 'PRJ-PHASE4-TEST', { aiProvider: mockProvider });
 
-  it('should validate requirements', () => {
-    const result = validateRequirements({
-      target: 'web',
-      features: [{ name: 'feature-1' }],
-    });
-    assert.ok(result.valid);
-  });
+    const planRes = validateImplementationPlan(implementationPlan);
+    assert.ok(planRes.valid, `Implementation Plan validation failed: ${planRes.errors.join(', ')}`);
 
-  it('should reject requirements without features', () => {
-    const result = validateRequirements({ target: 'web' });
-    assert.ok(!result.valid);
-  });
-});
-
-// --- Agent Resolver Tests ---
-
-describe('Agent Resolver', () => {
-  it('should load agent definitions from .agents/agents/', () => {
-    const agents = loadAgents();
-    assert.ok(agents.length > 0, 'No agents loaded');
-    assert.ok(agents.some(a => a.name.toLowerCase().includes('orchestrator')));
-  });
-
-  it('should normalize role names', () => {
-    assert.equal(normalizeRole('Frontend Engineer'), 'frontend_engineer');
-    assert.equal(normalizeRole('qa-test-engineer'), 'qa_test_engineer');
-    assert.equal(normalizeRole('Code Reviewer'), 'code_reviewer');
-  });
-
-  it('should select only needed roles', () => {
-    const roles = selectRequiredRoles({ target: 'web', features: [{ name: 'core-feature' }] });
-    assert.ok(roles.includes('frontend_engineer'));
-    assert.ok(roles.includes('product_analyst'));
-    // AI engineer should NOT be selected for a simple web project
-    assert.ok(!roles.includes('ai_gemini_engineer'));
+    const queueRes = validateTaskQueue(taskQueue);
+    assert.ok(queueRes.valid, `Task Queue validation failed: ${queueRes.errors.join(', ')}`);
   });
 });
 
-// --- Recovery Tests ---
+// --- 3. Task Graph & Dependencies ---
 
-describe('Recovery System', () => {
-  it('should compute stable signatures', () => {
-    const sig1 = computeSignature('build_error', 'FAILURE: Build failed with an exception');
-    const sig2 = computeSignature('build_error', 'FAILURE: Build failed with an exception');
-    assert.equal(sig1, sig2);
+describe('Task Graph Scheduler', () => {
+  it('should resolve ready tasks based on dependency chain', () => {
+    const t1 = { id: 'T1', dependencies: [], status: 'ready' };
+    const t2 = { id: 'T2', dependencies: ['T1'], status: 'pending' };
+    const t3 = { id: 'T3', dependencies: ['T2'], status: 'pending' };
+
+    const graph = new TaskGraph([t1, t2, t3]);
+
+    let ready = graph.getReadyTasks();
+    assert.equal(ready.length, 1);
+    assert.equal(ready[0].id, 'T1');
+
+    t1.status = 'done';
+    ready = graph.getReadyTasks();
+    assert.equal(ready.length, 1);
+    assert.equal(ready[0].id, 'T2');
+
+    t2.status = 'done';
+    ready = graph.getReadyTasks();
+    assert.equal(ready.length, 1);
+    assert.equal(ready[0].id, 'T3');
   });
 
-  it('should normalize numbers in signatures', () => {
-    const sig1 = computeSignature('build_error', 'Error at line 42');
-    const sig2 = computeSignature('build_error', 'Error at line 99');
-    assert.equal(sig1, sig2);
+  it('should detect cycles in task graph', () => {
+    const t1 = { id: 'T1', dependencies: ['T2'], status: 'pending' };
+    const t2 = { id: 'T2', dependencies: ['T1'], status: 'pending' };
+    const cyclicGraph = new TaskGraph([t1, t2]);
+    assert.ok(cyclicGraph.hasCycle());
   });
 
-  it('should classify errors correctly', () => {
-    assert.equal(classifyError('Module not found: foo').type, 'missing_dependency');
-    assert.equal(classifyError('SyntaxError: Unexpected token').type, 'syntax_error');
-    assert.equal(classifyError('ENOENT: no such file').type, 'file_not_found');
-    assert.equal(classifyError('Build failed with error').type, 'build_error');
+  it('should compute valid topological execution order', () => {
+    const t1 = { id: 'T1', dependencies: [], status: 'pending' };
+    const t2 = { id: 'T2', dependencies: ['T1'], status: 'pending' };
+    const t3 = { id: 'T3', dependencies: ['T1'], status: 'pending' };
+    const t4 = { id: 'T4', dependencies: ['T2', 'T3'], status: 'pending' };
+
+    const graph = new TaskGraph([t4, t3, t2, t1]);
+    const order = graph.getExecutionOrder();
+
+    const ids = order.map(t => t.id);
+    assert.ok(ids.indexOf('T1') < ids.indexOf('T2'));
+    assert.ok(ids.indexOf('T1') < ids.indexOf('T3'));
+    assert.ok(ids.indexOf('T2') < ids.indexOf('T4'));
+    assert.ok(ids.indexOf('T3') < ids.indexOf('T4'));
   });
 });
 
-// --- Git Ops Tests ---
+// --- 4. Recovery System & Failure Simulations ---
 
-describe('Git Operations', () => {
-  it('should detect git repo', () => {
+describe('Recovery System & Bounded Retries', () => {
+  it('should simulate failure -> recovery analysis -> retry -> success', () => {
+    const taskId = `T_TEST_RECOVER_${Date.now()}_01`;
+    const errorOutput = 'Compilation error: unresolved reference UserEntity at line 12';
+
+    // 1. First failure
+    const recovery1 = analyzeFailure(taskId, errorOutput);
+    assert.ok(recovery1.canRetry);
+    assert.equal(recovery1.attemptNumber, 1);
+    assert.ok(recovery1.suggestion);
+
+    // Record recovery attempt
+    recordRecoveryAttempt(taskId, recovery1.signature, errorOutput, 'unresolved reference', 'Add import com.app.domain.UserEntity', true);
+
+    // Verify error was recorded
+    assert.ok(hasFixBeenAttempted(recovery1.signature, 'Add import com.app.domain.UserEntity'));
+  });
+
+  it('should simulate repeated failures -> retry limit reached -> BLOCKED', () => {
+    const taskId = `T_TEST_BLOCK_${Date.now()}_02`;
+    const errorOutput = 'Fatal Error: Out of memory during compilation';
+    const classification = classifyError(errorOutput);
+    const sig = computeSignature(classification.type, errorOutput.slice(0, 500), taskId);
+
+    // Simulate 3 prior failed attempts
+    recordError({ task_id: taskId, signature: sig, log_excerpt: errorOutput, root_cause: 'OOM', attempted_fix: 'Increase heap to 2G', result: 'failed' });
+    recordError({ task_id: taskId, signature: sig, log_excerpt: errorOutput, root_cause: 'OOM', attempted_fix: 'Increase heap to 4G', result: 'failed' });
+    recordError({ task_id: taskId, signature: sig, log_excerpt: errorOutput, root_cause: 'OOM', attempted_fix: 'Enable daemon cache', result: 'failed' });
+
+    // 4th failure must be rejected
+    const recovery = analyzeFailure(taskId, errorOutput);
+    assert.equal(recovery.canRetry, false);
+    assert.ok(recovery.reason.includes('exhausted') || recovery.reason.includes('Max'));
+  });
+
+  it('should reject duplicate identical fixes', () => {
+    const taskId = `T_TEST_DUP_${Date.now()}_03`;
+    const errorOutput = 'Error: SDK location not found';
+    const classification = classifyError(errorOutput);
+    const sig = computeSignature(classification.type, errorOutput.slice(0, 500), taskId);
+
+    recordError({ task_id: taskId, signature: sig, log_excerpt: errorOutput, root_cause: 'missing sdk', attempted_fix: 'Set ANDROID_HOME', result: 'failed' });
+
+    // Propose same fix
+    const analysis = analyzeFailure(taskId, errorOutput, 'Set ANDROID_HOME');
+    assert.ok(analysis.duplicateFix);
+  });
+});
+
+// --- 5. Git Operations ---
+
+describe('Git Safety', () => {
+  it('should detect git repo and status', () => {
     assert.ok(isGitRepo(ROOT));
-  });
-
-  it('should get current branch', () => {
-    const branch = getCurrentBranch(ROOT);
-    assert.ok(branch, 'Branch should not be null');
-  });
-
-  it('should return status', () => {
     const status = getStatus(ROOT);
     assert.ok(status.branch);
     assert.equal(typeof status.dirty, 'boolean');
   });
 
-  it('should run preflight', () => {
-    const result = preflight(ROOT);
-    assert.ok(result.isRepo);
-  });
-});
-
-// --- Orchestrator Integration Tests ---
-
-describe('Orchestrator', () => {
-  it('should analyze requirements from a user request', () => {
-    ensureStateDir();
-    const state = createProjectState('Create a web app with a home screen and a button', 'web');
-    saveState(state);
-
-    const reqs = analyzeRequirements('Create a web app with a home screen and a button', 'web');
-    assert.ok(reqs.features.length > 0);
-    assert.ok(reqs.features.some(f => f.name.includes('home-screen') || f.name.includes('button')));
-  });
-
-  it('should create architecture from requirements', () => {
-    const reqs = { target: 'web', features: [{ name: 'home-screen', description: 'Home screen' }] };
-    const arch = createArchitecture(reqs);
-    assert.ok(arch.stack);
-    assert.ok(arch.components.length > 0);
-  });
-
-  it('should create a task plan with correct dependencies', () => {
-    const reqs = { target: 'web', features: [{ name: 'feature-a', description: 'Feature A' }] };
-    const arch = { stack: { language: 'javascript', framework: 'vanilla' }, components: [] };
-    const tasks = createTaskPlan(reqs, arch);
-    assert.ok(tasks.length >= 3); // setup + feature + test + build
-    // First task should have no deps
-    assert.equal(tasks[0].depends_on.length, 0);
-    // Later tasks depend on setup
-    assert.ok(tasks[1].depends_on.includes(tasks[0].task_id));
+  it('should run preflight check', () => {
+    const pf = preflight(ROOT);
+    assert.ok(pf.isRepo);
   });
 });

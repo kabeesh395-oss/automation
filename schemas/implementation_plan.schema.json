@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Implementation Plan",
+  "type": "object",
+  "required": [
+    "total_tasks",
+    "roles_needed",
+    "phases",
+    "tasks"
+  ],
+  "properties": {
+    "total_tasks": { "type": "integer" },
+    "roles_needed": { "type": "array", "items": { "type": "string" } },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phase_name", "task_ids"],
+        "properties": {
+          "phase_name": { "type": "string" },
+          "task_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "type", "description", "dependencies", "affected_files", "verification_criteria"],
+        "properties": {
+          "task_id": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "role": { "type": "string" },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "affected_files": { "type": "array", "items": { "type": "string" } },
+          "verification_criteria": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "created_at": { "type": "string" }
+  }
+}

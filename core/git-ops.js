@@ -202,3 +202,29 @@ export function popStash(cwd) {
   }
   return result.ok;
 }
+
+/** Create a checkpoint commit before risky operations */
+export function createCheckpoint(message, cwd) {
+  // Commit any uncommitted changes first to ensure clean state
+  commitChanges(`CHECKPOINT: ${message}`, cwd);
+  const headResult = git('rev-parse HEAD', cwd);
+  if (headResult.ok) {
+    const hash = headResult.output.trim();
+    logGit(`Created checkpoint: ${hash}`);
+    return hash;
+  }
+  return null;
+}
+
+/** Hard rollback to a specific commit hash */
+export function rollbackToCheckpoint(commitHash, cwd) {
+  if (!commitHash) return false;
+  const result = git(`reset --hard ${commitHash}`, cwd);
+  if (result.ok) {
+    // Also clean any untracked files generated during the failed attempt
+    git('clean -fd', cwd);
+    logGit(`Rolled back to checkpoint: ${commitHash}`);
+    return true;
+  }
+  return false;
+}

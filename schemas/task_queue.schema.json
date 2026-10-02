@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task Queue",
+  "type": "object",
+  "required": [
+    "project_id",
+    "tasks"
+  ],
+  "properties": {
+    "project_id": { "type": "string" },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "description",
+          "dependencies",
+          "status",
+          "attempts",
+          "owner",
+          "inputs",
+          "outputs",
+          "verification"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["pending", "ready", "running", "done", "failed", "blocked", "not_implemented"] },
+          "attempts": { "type": "integer" },
+          "owner": { "type": "string" },
+          "inputs": { "type": "array" },
+          "outputs": { "type": "object" },
+          "verification": {
+            "type": "object",
+            "required": ["criteria", "status"],
+            "properties": {
+              "criteria": { "type": "array", "items": { "type": "string" } },
+              "status": { "type": "string", "enum": ["pending", "pass", "fail", "not_verified"] },
+              "evidence": { "type": "string" }
+            }
+          },
+          "error": { "type": ["string", "null"] },
+          "created_at": { "type": "string" },
+          "started_at": { "type": ["string", "null"] },
+          "completed_at": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "updated_at": { "type": "string" }
+  }
+}

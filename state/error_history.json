@@ -68,5 +68,415 @@
     "attempted_fix": "fix-A",
     "result": "failed",
     "timestamp": "2026-10-02T05:57:11.863Z"
+  },
+  {
+    "id": "E-641222",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:04:01.222Z"
+  },
+  {
+    "id": "E-660120",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:04:20.120Z"
+  },
+  {
+    "id": "E-676949",
+    "task_id": "T_TEST_RECOVER_01",
+    "signature": "649ab3f2122be0f9",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:21:16.949Z"
+  },
+  {
+    "id": "E-676952",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:16.952Z"
+  },
+  {
+    "id": "E-676953",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:16.953Z"
+  },
+  {
+    "id": "E-676954",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:16.954Z"
+  },
+  {
+    "id": "E-676957",
+    "task_id": "T_TEST_DUP_03",
+    "signature": "c84f488e84313136",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:16.957Z"
+  },
+  {
+    "id": "E-693990",
+    "task_id": "T_TEST_RECOVER_01",
+    "signature": "1c0e5bfd42d505e6",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:21:33.990Z"
+  },
+  {
+    "id": "E-693992",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:33.992Z"
+  },
+  {
+    "id": "E-693993",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:33.993Z"
+  },
+  {
+    "id": "E-693994",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:33.994Z"
+  },
+  {
+    "id": "E-693997",
+    "task_id": "T_TEST_DUP_03",
+    "signature": "c84f488e84313136",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:21:33.997Z"
+  },
+  {
+    "id": "E-353257",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:33.257Z"
+  },
+  {
+    "id": "E-353258",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:33.258Z"
+  },
+  {
+    "id": "E-353259",
+    "task_id": "T_TEST_BLOCK_02",
+    "signature": "c685227656dfadff",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:33.259Z"
+  },
+  {
+    "id": "E-353262",
+    "task_id": "T_TEST_DUP_03",
+    "signature": "c84f488e84313136",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:33.262Z"
+  },
+  {
+    "id": "E-375948",
+    "task_id": "T_TEST_RECOVER_1790926375946_01",
+    "signature": "563c4e5f08b6787d",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:32:55.948Z"
+  },
+  {
+    "id": "E-375950",
+    "task_id": "T_TEST_BLOCK_1790926375949_02",
+    "signature": "deb199e88c6f8cd6",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:55.950Z"
+  },
+  {
+    "id": "E-375951",
+    "task_id": "T_TEST_BLOCK_1790926375949_02",
+    "signature": "deb199e88c6f8cd6",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:55.951Z"
+  },
+  {
+    "id": "E-375951",
+    "task_id": "T_TEST_BLOCK_1790926375949_02",
+    "signature": "deb199e88c6f8cd6",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:55.951Z"
+  },
+  {
+    "id": "E-375953",
+    "task_id": "T_TEST_DUP_1790926375953_03",
+    "signature": "79ebf5c96f7bb8a4",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:32:55.953Z"
+  },
+  {
+    "id": "E-756869",
+    "task_id": "T_TEST_RECOVER_1790927756858_01",
+    "signature": "68eec7893d6757a9",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:55:56.869Z"
+  },
+  {
+    "id": "E-756872",
+    "task_id": "T_TEST_BLOCK_1790927756871_02",
+    "signature": "1b0d440d761af80a",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:55:56.872Z"
+  },
+  {
+    "id": "E-756873",
+    "task_id": "T_TEST_BLOCK_1790927756871_02",
+    "signature": "1b0d440d761af80a",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:55:56.873Z"
+  },
+  {
+    "id": "E-756874",
+    "task_id": "T_TEST_BLOCK_1790927756871_02",
+    "signature": "1b0d440d761af80a",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:55:56.874Z"
+  },
+  {
+    "id": "E-756877",
+    "task_id": "T_TEST_DUP_1790927756876_03",
+    "signature": "f4b170ee2af74889",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:55:56.877Z"
+  },
+  {
+    "id": "E-799002",
+    "task_id": "T_TEST_RECOVER_1790927799001_01",
+    "signature": "2ed70d9b086baa18",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:56:39.002Z"
+  },
+  {
+    "id": "E-799005",
+    "task_id": "T_TEST_BLOCK_1790927799004_02",
+    "signature": "3fc081b280d28ae7",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:39.005Z"
+  },
+  {
+    "id": "E-799006",
+    "task_id": "T_TEST_BLOCK_1790927799004_02",
+    "signature": "3fc081b280d28ae7",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:39.006Z"
+  },
+  {
+    "id": "E-799007",
+    "task_id": "T_TEST_BLOCK_1790927799004_02",
+    "signature": "3fc081b280d28ae7",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:39.007Z"
+  },
+  {
+    "id": "E-799011",
+    "task_id": "T_TEST_DUP_1790927799010_03",
+    "signature": "b2e309913d467a61",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:39.011Z"
+  },
+  {
+    "id": "E-814626",
+    "task_id": "T_TEST_RECOVER_1790927814623_01",
+    "signature": "7a004f760ff2b508",
+    "log_excerpt": "Compilation error: unresolved reference HomeState at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.jarvis.minimalandroid.HomeState",
+    "result": "success",
+    "timestamp": "2026-10-02T07:56:54.626Z"
+  },
+  {
+    "id": "E-814629",
+    "task_id": "T_TEST_BLOCK_1790927814628_02",
+    "signature": "c83080d804300645",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:54.629Z"
+  },
+  {
+    "id": "E-814632",
+    "task_id": "T_TEST_BLOCK_1790927814628_02",
+    "signature": "c83080d804300645",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:54.632Z"
+  },
+  {
+    "id": "E-814636",
+    "task_id": "T_TEST_BLOCK_1790927814628_02",
+    "signature": "c83080d804300645",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:54.636Z"
+  },
+  {
+    "id": "E-814641",
+    "task_id": "T_TEST_DUP_1790927814640_03",
+    "signature": "75af33cce320432f",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:56:54.641Z"
+  },
+  {
+    "id": "E-869915",
+    "task_id": "T_TEST_RECOVER_1790927869914_01",
+    "signature": "69a394ef414a487c",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T07:57:49.915Z"
+  },
+  {
+    "id": "E-869918",
+    "task_id": "T_TEST_BLOCK_1790927869917_02",
+    "signature": "8c9c95b3ba208152",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:57:49.918Z"
+  },
+  {
+    "id": "E-869920",
+    "task_id": "T_TEST_BLOCK_1790927869917_02",
+    "signature": "8c9c95b3ba208152",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:57:49.920Z"
+  },
+  {
+    "id": "E-869921",
+    "task_id": "T_TEST_BLOCK_1790927869917_02",
+    "signature": "8c9c95b3ba208152",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:57:49.921Z"
+  },
+  {
+    "id": "E-869923",
+    "task_id": "T_TEST_DUP_1790927869923_03",
+    "signature": "a75d73c74eccccbe",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T07:57:49.923Z"
   }
 ]

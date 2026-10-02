@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architecture",
+  "type": "object",
+  "required": [
+    "platform",
+    "language",
+    "framework",
+    "modules",
+    "data_layer",
+    "backend_strategy",
+    "security_requirements",
+    "build_configuration"
+  ],
+  "properties": {
+    "platform": { "type": "string" },
+    "language": { "type": "string" },
+    "framework": { "type": "string" },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "description"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "dependencies": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "data_layer": {
+      "type": "object",
+      "required": ["strategy"],
+      "properties": {
+        "strategy": { "type": "string" },
+        "storage": { "type": "string" },
+        "schema_details": { "type": "string" }
+      }
+    },
+    "backend_strategy": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string" },
+        "api_protocol": { "type": "string" },
+        "endpoints": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ai_strategy": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "provider": { "type": "string" },
+        "models": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "auth_strategy": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "provider": { "type": "string" }
+      }
+    },
+    "security_requirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "build_configuration": {
+      "type": "object",
+      "required": ["tool", "target_version"],
+      "properties": {
+        "tool": { "type": "string" },
+        "target_version": { "type": "string" },
+        "min_version": { "type": "string" },
+        "build_command": { "type": "string" },
+        "test_command": { "type": "string" }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "decision", "reason"],
+        "properties": {
+          "id": { "type": "string" },
+          "decision": { "type": "string" },
+          "reason": { "type": "string" },
+          "date": { "type": "string" }
+        }
+      }
+    },
+    "created_at": { "type": "string" }
+  }
+}

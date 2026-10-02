@@ -1,295 +1,318 @@
 /**
- * JARVIS Master Orchestrator
+ * JARVIS Master Orchestrator (Phase 3)
  * 
- * The central state machine that drives the entire development pipeline.
+ * Reusable Autonomous Software-Development State Machine:
  * 
- * This is NOT a simulation — every phase runs real operations:
- * - Real file I/O for project creation
- * - Real terminal commands for build/test
- * - Real git operations for version control
- * - Real verification gates with evidence
- * 
- * The orchestrator coordinates work through a state machine.
- * In Antigravity, the agent reads the orchestrator's output and
- * executes the next action using its native capabilities.
+ * NATURAL LANGUAGE IDEA
+ *         ↓
+ * [1. INIT]                - Toolchain & environment check, git branch setup
+ *         ↓
+ * [2. ANALYSIS]            - Product Analyst -> requirements.json + product_spec.md
+ *         ↓
+ * [3. ARCHITECTURE]        - Software Architect -> architecture.json
+ *         ↓
+ * [4. UX_PLAN]             - UX/UI Architect -> ux_plan.json
+ *         ↓
+ * [5. IMPLEMENTATION_PLAN] - Task Planner -> implementation_plan.json + task_queue.json
+ *         ↓
+ * [6. EXECUTION]           - Task Graph Execution Engine (code, models, UI)
+ *         ↓
+ * [7. BUILD & TEST]        - Gradle / test runners with bounded recovery loop
+ *         ↓
+ * [8. VERIFY & GATES]      - Gates 1–7 -> verification_report.json
+ *         ↓
+ * [9. RELEASE]             - Verified artifact + checksum
+ *         ↓
+ * [10. COMPLETED]          - Clean git commit & final report
  */
 
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { execSync } from 'node:child_process';
 import {
   createProjectState, saveState, loadState, updateState, transitionPhase,
-  createTask, addTask, updateTask, getNextRunnableTasks, ensureStateDir,
+  ensureStateDir, STATE_DIR
 } from './state-manager.js';
-import { selectRequiredRoles, normalizeRole } from './agent-resolver.js';
-import { preflight, initRepo, createFeatureBranch, commitChanges, getStatus } from './git-ops.js';
-import { runAllGates, gateBuild, gateTests, gateSecurity, gateGit } from './gate-runner.js';
+import { analyzeProduct } from './product-analyst.js';
+import { designArchitecture } from './software-architect.js';
+import { designUxPlan } from './ux-architect.js';
+import { planTasks } from './task-planner.js';
+import { TaskGraph } from './task-graph.js';
+import { executeTask } from './executor.js';
 import { analyzeFailure, recordRecoveryAttempt } from './recovery.js';
-import { validateProjectState, validateTask, validateRequirements } from './protocol/validator.js';
+import { runAllGates } from './gate-runner.js';
+import { getStatus, initRepo, createFeatureBranch } from './git-ops.js';
 import * as logger from './logger.js';
 
 const ROOT_DIR = resolve(import.meta.dirname, '..');
 
-// --- Phase Definitions ---
-
-const PHASES = [
-  'init',       // Environment inspection, project creation
-  'analysis',   // Requirements extraction
-  'design',     // Architecture + UX design
-  'plan',       // Task decomposition
-  'build',      // Code implementation
-  'test',       // Testing
-  'verify',     // Gate verification
-  'security',   // Security scan
-  'review',     // Code review
-  'release',    // Packaging
-  'done',       // Complete
-];
+export const ORCHESTRATOR_PHASES = {
+  INIT: 'INIT',
+  ANALYSIS: 'ANALYSIS',
+  ARCHITECTURE: 'ARCHITECTURE',
+  UX_PLAN: 'UX_PLAN',
+  IMPLEMENTATION_PLAN: 'IMPLEMENTATION_PLAN',
+  EXECUTION: 'EXECUTION',
+  BUILD: 'BUILD',
+  TEST: 'TEST',
+  RECOVERY: 'RECOVERY',
+  VERIFY: 'VERIFY',
+  RELEASE: 'RELEASE',
+  COMPLETED: 'COMPLETED',
+  BLOCKED: 'BLOCKED',
+  FAILED: 'FAILED'
+};
 
 /**
- * Initialize a new project from a user request.
- * 
- * @param {string} userRequest - Natural language project description
- * @param {object} options - { target, workspaceDir }
- * @returns {object} - Project state
+ * Initialize a new project state.
  */
 export async function initProject(userRequest, options = {}) {
-  const target = options.target || detectTarget(userRequest);
+  const target = options.target || 'android';
   const workspaceDir = options.workspaceDir || join(ROOT_DIR, 'poc-workspace');
 
-  logger.logInit(`Starting JARVIS for: "${userRequest}"`);
-  logger.logInit(`Target platform: ${target}`);
-  logger.logInit(`Workspace: ${workspaceDir}`);
+  logger.logInit(`[JARVIS Phase 3] Initializing for: "${userRequest}"`);
 
-  // Create state
   const state = createProjectState(userRequest, target);
-  state.project.name = extractProjectName(userRequest);
+  state.phase = ORCHESTRATOR_PHASES.INIT;
   state.project.workspace_dir = workspaceDir;
 
-  // Inspect environment
-  state.environment = inspectEnvironment();
-
-  // Save initial state
   ensureStateDir();
   saveState(state);
-
-  logger.logInit(`Project created: ${state.project.id} — ${state.project.name}`);
-  return state;
-}
-
-/**
- * Analyze requirements from the user request.
- * Returns structured requirements.
- */
-export function analyzeRequirements(userRequest, target) {
-  logger.logPlan('Analyzing requirements...');
-
-  // Parse the user request into structured requirements
-  const requirements = {
-    target,
-    user_request: userRequest,
-    features: extractFeatures(userRequest),
-    non_functional: [
-      { name: 'buildable', description: 'Project must compile/build without errors' },
-      { name: 'testable', description: 'Core features must have tests' },
-    ],
-    constraints: [],
-    created: new Date().toISOString(),
-  };
-
-  // Validate
-  const validation = validateRequirements(requirements);
-  if (!validation.valid) {
-    logger.logError(`Requirements validation failed: ${validation.errors.join(', ')}`);
-  }
-
-  // Save to state
-  const state = loadState();
-  state.requirements = requirements;
-  transitionPhase('analysis');
-  saveState(state);
-
-  logger.logPlan(`Extracted ${requirements.features.length} features`);
-  return requirements;
-}
-
-/**
- * Create architecture decisions based on requirements.
- */
-export function createArchitecture(requirements) {
-  logger.logPlan('Designing architecture...');
-
-  const target = requirements.target;
-  const architecture = {
-    target,
-    stack: getStackForTarget(target),
-    components: [],
-    api_contracts: [],
-    decisions: [],
-    created: new Date().toISOString(),
-  };
-
-  // Map features to components
-  for (const feature of requirements.features) {
-    architecture.components.push({
-      name: feature.name,
-      type: guessComponentType(feature, target),
-      description: feature.description,
-    });
-  }
-
-  // Save
-  const state = loadState();
-  state.architecture = architecture;
-  state.decisions.push({
-    id: `D-${Date.now().toString(36)}`,
-    decision: `Stack: ${JSON.stringify(architecture.stack)}`,
-    reason: `Best fit for ${target} target`,
-    date: new Date().toISOString(),
-  });
-  transitionPhase('design');
-  saveState(state);
-
-  logger.logPlan(`Architecture: ${architecture.components.length} components, stack: ${architecture.stack.framework || architecture.stack.language}`);
-  return architecture;
-}
-
-/**
- * Decompose the project into an ordered task queue.
- */
-export function createTaskPlan(requirements, architecture) {
-  logger.logPlan('Creating implementation plan...');
-
-  const target = requirements.target;
-  const tasks = [];
-  const roles = selectRequiredRoles(requirements);
-
-  // Phase 1: Project setup
-  tasks.push(createTask({
-    description: `Initialize ${target} project structure`,
-    role: 'frontend_engineer',
-    depends_on: [],
-    inputs: [architecture.stack],
-    acceptance: ['Project directory created', 'Base files generated'],
-  }));
-
-  // Phase 2: Implement each feature
-  for (const feature of requirements.features) {
-    const componentType = guessComponentType(feature, target);
-    const role = componentType === 'backend' ? 'backend_engineer' : 'frontend_engineer';
-
-    tasks.push(createTask({
-      description: `Implement: ${feature.name} — ${feature.description}`,
-      role,
-      depends_on: [tasks[0].task_id], // Depends on project setup
-      inputs: [feature],
-      acceptance: [`${feature.name} feature works as described`],
-    }));
-  }
-
-  // Phase 3: Tests
-  tasks.push(createTask({
-    description: 'Write and run tests for implemented features',
-    role: 'qa_test_engineer',
-    depends_on: tasks.slice(1).map(t => t.task_id), // Depends on all feature tasks
-    inputs: requirements.features,
-    acceptance: ['Tests exist', 'Tests pass'],
-  }));
-
-  // Phase 4: Build verification
-  tasks.push(createTask({
-    description: `Build the ${target} project and verify it compiles`,
-    role: 'build_release_engineer',
-    depends_on: [tasks[tasks.length - 1].task_id],
-    inputs: [architecture.stack],
-    acceptance: ['Build succeeds with exit code 0'],
-  }));
-
-  // Save tasks to state
-  const state = loadState();
-  for (const task of tasks) {
-    state.tasks.push(task);
-  }
-  state.implementation_plan = {
-    total_tasks: tasks.length,
-    roles_needed: roles,
-    created: new Date().toISOString(),
-  };
-  transitionPhase('plan');
-  saveState(state);
-
-  logger.logPlan(`Task plan: ${tasks.length} tasks, ${roles.length} roles needed`);
-  return tasks;
-}
-
-/**
- * Initialize the project workspace — creates actual files and directories.
- */
-export function initWorkspace(workspaceDir, architecture) {
-  logger.logInit(`Initializing workspace: ${workspaceDir}`);
 
   if (!existsSync(workspaceDir)) {
     mkdirSync(workspaceDir, { recursive: true });
   }
 
-  // Initialize git in workspace
-  initRepo(workspaceDir);
-  createFeatureBranch('jarvis-init', workspaceDir);
+  // Setup git feature branch
+  try {
+    initRepo(workspaceDir);
+    createFeatureBranch('jarvis-phase3', workspaceDir);
+  } catch { /* skip if already initialized */ }
 
-  return true;
+  return state;
 }
 
 /**
- * Run verification gates on the project.
+ * Run Product Analysis stage.
  */
-export function verify(projectDir, options = {}) {
-  logger.logVerify('Running verification gates...');
+export async function runAnalysis(state) {
+  logger.logPhase('ANALYSIS', 'Extracting product requirements');
+  state.phase = ORCHESTRATOR_PHASES.ANALYSIS;
 
-  const state = loadState();
-  if (!state) throw new Error('No project state found');
+  const { requirements, productSpecMd } = await analyzeProduct(state.project.user_request, {
+    target: state.project.target
+  });
 
-  const gateResults = runAllGates(state, projectDir, options);
+  state.requirements = requirements;
+  state.project.name = requirements.app_name;
 
-  // Update state with gate results
+  // Persist artifact
+  const artifactsDir = join(STATE_DIR, 'artifacts');
+  if (!existsSync(artifactsDir)) mkdirSync(artifactsDir, { recursive: true });
+  writeFileSync(join(artifactsDir, 'requirements.json'), JSON.stringify(requirements, null, 2), 'utf-8');
+  writeFileSync(join(artifactsDir, 'product_spec.md'), productSpecMd, 'utf-8');
+
+  saveState(state);
+  return requirements;
+}
+
+/**
+ * Run Architecture Design stage.
+ */
+export async function runArchitecture(state, options = {}) {
+  logger.logPhase('ARCHITECTURE', 'Designing system architecture and stack');
+  state.phase = ORCHESTRATOR_PHASES.ARCHITECTURE;
+
+  const architecture = await designArchitecture(state.requirements, options);
+  state.architecture = architecture;
+  state.decisions = architecture.decisions || [];
+
+  const artifactsDir = join(STATE_DIR, 'artifacts');
+  writeFileSync(join(artifactsDir, 'architecture.json'), JSON.stringify(architecture, null, 2), 'utf-8');
+
+  saveState(state);
+  return architecture;
+}
+
+/**
+ * Run UX Planning stage.
+ */
+export async function runUxPlan(state, options = {}) {
+  logger.logPhase('UX_PLAN', 'Designing UX flows and composable screen hierarchy');
+  state.phase = ORCHESTRATOR_PHASES.UX_PLAN;
+
+  const uxPlan = await designUxPlan(state.requirements, state.architecture, options);
+  state.ux_plan = uxPlan;
+
+  const artifactsDir = join(STATE_DIR, 'artifacts');
+  writeFileSync(join(artifactsDir, 'ux_plan.json'), JSON.stringify(uxPlan, null, 2), 'utf-8');
+
+  saveState(state);
+  return uxPlan;
+}
+
+/**
+ * Run Task Planning stage.
+ */
+export async function runTaskPlan(state, options = {}) {
+  logger.logPhase('IMPLEMENTATION_PLAN', 'Generating dependency-aware task graph');
+  state.phase = ORCHESTRATOR_PHASES.IMPLEMENTATION_PLAN;
+
+  const { implementationPlan, taskQueue } = await planTasks(
+    state.requirements,
+    state.architecture,
+    state.ux_plan,
+    state.project.id,
+    options
+  );
+
+  state.implementation_plan = implementationPlan;
+  state.tasks = taskQueue.tasks;
+
+  const artifactsDir = join(STATE_DIR, 'artifacts');
+  writeFileSync(join(artifactsDir, 'implementation_plan.json'), JSON.stringify(implementationPlan, null, 2), 'utf-8');
+  writeFileSync(join(artifactsDir, 'task_queue.json'), JSON.stringify(taskQueue, null, 2), 'utf-8');
+
+  saveState(state);
+  return { implementationPlan, taskQueue };
+}
+
+/**
+ * Execute the task queue using the TaskGraph engine.
+ */
+export async function executeTaskQueue(state, options = {}) {
+  logger.logPhase('EXECUTION', 'Executing task graph');
+  state.phase = ORCHESTRATOR_PHASES.EXECUTION;
+  saveState(state);
+
+  const workspaceDir = state.project.workspace_dir || join(ROOT_DIR, 'poc-workspace');
+  const graph = new TaskGraph(state.tasks);
+
+  while (true) {
+    const readyTasks = graph.getReadyTasks();
+    if (readyTasks.length === 0) break;
+
+    for (const task of readyTasks) {
+      const result = await executeTask(task, workspaceDir, state, options);
+
+      if (!result.success) {
+        // Run Recovery Loop
+        logger.logRecovery(`Attempting recovery for task [${task.id || task.task_id}]`);
+        state.phase = ORCHESTRATOR_PHASES.RECOVERY;
+
+        const recovery = analyzeFailure(task.id || task.task_id, result.error.message);
+        if (recovery.canRetry) {
+          logger.logRecovery(`Retrying task with suggestion: ${recovery.suggestion}`);
+          // Attempt AI Debugger repair
+          await attemptAIDebugRepair({
+            taskId: task.id || task.task_id,
+            classification: recovery.classification,
+            errorLog: result.error.message,
+            previousFixes: [recovery.suggestion]
+          }, workspaceDir, options);
+
+          // Retry task
+          const retryResult = await executeTask(task, workspaceDir, state, options);
+          recordRecoveryAttempt(task.id || task.task_id, recovery.signature, result.error.message, recovery.classification.type, recovery.suggestion, retryResult.success);
+          if (!retryResult.success) {
+            state.phase = ORCHESTRATOR_PHASES.BLOCKED;
+            state.blockers.push({
+              task_id: task.id || task.task_id,
+              error: result.error.message,
+              reason: recovery.reason || 'Task execution failed after recovery attempt'
+            });
+            saveState(state);
+            return { success: false, state };
+          }
+        } else {
+          state.phase = ORCHESTRATOR_PHASES.BLOCKED;
+          state.blockers.push({
+            task_id: task.id || task.task_id,
+            error: result.error.message,
+            reason: recovery.reason
+          });
+          saveState(state);
+          return { success: false, state };
+        }
+      }
+    }
+  }
+
+  saveState(state);
+  return { success: graph.isCompleted(), state };
+}
+
+/**
+ * Run verification gates and generate final report.
+ */
+export function runVerification(state, options = {}) {
+  logger.logPhase('VERIFY', 'Executing verification gates');
+  state.phase = ORCHESTRATOR_PHASES.VERIFY;
+
+  const workspaceDir = state.project.workspace_dir || join(ROOT_DIR, 'poc-workspace');
+  const gateResults = runAllGates(state, workspaceDir, options);
+
   for (const [gate, result] of Object.entries(gateResults)) {
     const gateKey = gate.startsWith('g') ? `${gate}_${getGateName(gate)}` : gate;
     if (state.gates[gateKey] !== undefined) {
-      state.gates[gateKey] = result.pass ? 'pass' : 'fail';
+      state.gates[gateKey] = result.pass ? 'pass' : (result.status === 'NOT_VERIFIED' ? 'NOT_VERIFIED' : (result.status === 'NOT_CONFIGURED' ? 'NOT_CONFIGURED' : 'fail'));
     }
     state.gate_evidence[gate] = result.evidence;
   }
+
+  // Update build and test results
+  if (gateResults.g2) {
+    state.build_results = {
+      last_run: new Date().toISOString(),
+      status: gateResults.g2.pass ? 'success' : 'failed',
+      log: gateResults.g2.evidence?.checks?.[0]?.stdout || '',
+      artifact: gateResults.g7?.artifactDetails?.file_path || null
+    };
+  }
+
+  if (gateResults.g3) {
+    const testCheck = gateResults.g3.evidence?.checks?.[0] || {};
+    state.test_results = {
+      last_run: new Date().toISOString(),
+      passed: testCheck.passed || 0,
+      failed: testCheck.failed || 0,
+      log: testCheck.stdout || ''
+    };
+  }
+
+  state.phase = ORCHESTRATOR_PHASES.RELEASE;
   saveState(state);
 
-  const passed = Object.values(gateResults).filter(r => r.pass).length;
-  const total = Object.values(gateResults).length;
-  logger.logVerify(`Gates: ${passed}/${total} passed`);
+  const report = generateReport(workspaceDir);
+  state.phase = ORCHESTRATOR_PHASES.COMPLETED;
+  saveState(state);
 
-  return gateResults;
+  return { gateResults, report };
 }
 
 /**
- * Generate the final verification report.
+ * Generate final verification report.
  */
 export function generateReport(projectDir) {
   const state = loadState();
   if (!state) throw new Error('No project state found');
 
-  const gitStatus = getStatus(projectDir || state.project.workspace_dir || ROOT_DIR);
+  const workspace = projectDir || state.project.workspace_dir || ROOT_DIR;
+  const gitStatus = getStatus(workspace);
 
   const report = {
     project: state.project,
     generated: new Date().toISOString(),
     phase: state.phase,
     requirements_summary: {
-      total_features: state.requirements?.features?.length || 0,
-      target: state.requirements?.target || 'unknown',
+      total_features: state.requirements?.core_features?.length || state.requirements?.features?.length || 0,
+      target: state.requirements?.target_platform || state.project.target || 'android'
     },
     tasks_summary: {
       total: state.tasks.length,
       done: state.tasks.filter(t => t.status === 'done').length,
       failed: state.tasks.filter(t => t.status === 'failed').length,
       blocked: state.tasks.filter(t => t.status === 'blocked').length,
-      pending: state.tasks.filter(t => t.status === 'pending').length,
+      pending: state.tasks.filter(t => t.status === 'pending').length
     },
     gates: state.gates,
     gate_evidence: state.gate_evidence,
@@ -297,107 +320,113 @@ export function generateReport(projectDir) {
     test_results: state.test_results,
     git: {
       ...gitStatus,
-      jarvis_branch: gitStatus.branch,
+      jarvis_branch: gitStatus.branch
     },
-    not_implemented: state.not_implemented,
-    known_limitations: state.known_limitations,
-    blockers: state.blockers,
-    decisions: state.decisions,
-    errors: state.errors,
+    not_implemented: state.not_implemented || [],
+    known_limitations: state.known_limitations || [],
+    blockers: state.blockers || [],
+    decisions: state.decisions || [],
+    errors: state.errors || []
   };
 
-  // Save report
   ensureStateDir();
-  const reportPath = join(ROOT_DIR, 'state', 'artifacts', 'verification_report.json');
+  const reportPath = join(STATE_DIR, 'artifacts', 'verification_report.json');
   writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf-8');
 
   logger.logVerify(`Verification report saved: ${reportPath}`);
   return report;
 }
 
-// --- Helpers ---
+/**
+ * Complete Reusable End-to-End Pipeline
+ */
+export async function runOrchestrator(userRequest, options = {}) {
+  logger.logInit(`=== JARVIS Reusable Pipeline: "${userRequest}" ===`);
 
-function detectTarget(request) {
-  const lower = request.toLowerCase();
-  if (lower.includes('android')) return 'android';
-  if (lower.includes('web') || lower.includes('website')) return 'web';
-  if (lower.includes('api') || lower.includes('backend') || lower.includes('server')) return 'backend';
-  if (lower.includes('cli') || lower.includes('command line')) return 'cli';
-  return 'web'; // default
-}
+  try {
+    // 1. Init
+    const state = await initProject(userRequest, options);
 
-function extractProjectName(request) {
-  // Try to extract a meaningful name
-  const lower = request.toLowerCase();
-  const patterns = [
-    /create (?:a |an )?(?:minimal )?(.+?)(?:\s+app|\s+application|\s+with|\s+that|\s+containing)/i,
-    /build (?:a |an )?(.+?)(?:\s+app|\s+application|\s+with|\s+that)/i,
-    /(.+?)(?:\s+app|\s+application)/i,
-  ];
-  for (const pattern of patterns) {
-    const match = request.match(pattern);
-    if (match) {
-      return match[1].trim().replace(/\s+/g, '-').toLowerCase().slice(0, 30);
+    // 2. Product Analysis
+    await runAnalysis(state, options);
+
+    // 3. Architecture
+    await runArchitecture(state, options);
+
+    // 4. UX Plan
+    await runUxPlan(state, options);
+
+    // 5. Task Plan
+    await runTaskPlan(state, options);
+
+    // 6. Execute Task Queue
+    const execResult = await executeTaskQueue(state, options);
+    if (!execResult.success) {
+      logger.logError('Task execution was blocked or failed. State preserved for resume.');
+      return { success: false, state: execResult.state };
     }
-  }
-  return 'jarvis-project';
-}
 
-function extractFeatures(request) {
-  const features = [];
-  const lower = request.toLowerCase();
+    // 7. Verify Gates & Package
+    const { gateResults, report } = runVerification(state, options);
 
-  // Parse common feature patterns
-  const featurePatterns = [
-    { pattern: /(?:home|main)\s*screen/i, name: 'home-screen', description: 'Home/main screen of the application' },
-    { pattern: /title/i, name: 'title-display', description: 'Display a title text' },
-    { pattern: /button/i, name: 'button-interaction', description: 'Interactive button element' },
-    { pattern: /(?:login|sign\s*in)/i, name: 'login', description: 'User login/sign-in functionality' },
-    { pattern: /(?:signup|sign\s*up|register)/i, name: 'signup', description: 'User registration functionality' },
-    { pattern: /list/i, name: 'list-view', description: 'List display of items' },
-    { pattern: /(?:nav|navigation|menu)/i, name: 'navigation', description: 'Navigation menu/bar' },
-    { pattern: /(?:search)/i, name: 'search', description: 'Search functionality' },
-    { pattern: /(?:settings|preferences)/i, name: 'settings', description: 'Settings/preferences screen' },
-  ];
-
-  for (const fp of featurePatterns) {
-    if (fp.pattern.test(lower)) {
-      features.push({ name: fp.name, description: fp.description, priority: 'must' });
+    logger.logInit(`=== Pipeline Completed Successfully. State: ${state.phase} ===`);
+    return { success: true, state, gateResults, report };
+  } catch (err) {
+    logger.logError(`Pipeline error: ${err.message}`);
+    const state = loadState();
+    if (state) {
+      state.phase = ORCHESTRATOR_PHASES.BLOCKED;
+      state.blockers.push({
+        error: err.message,
+        stage: 'orchestrator',
+        reason: err.name === 'AICredentialsMissingError' ? 'Missing AI credentials (GEMINI_API_KEY / GOOGLE_API_KEY)' : err.message
+      });
+      saveState(state);
     }
-  }
-
-  // If no features detected, create a generic one from the request
-  if (features.length === 0) {
-    features.push({
-      name: 'core-feature',
-      description: request,
-      priority: 'must',
-    });
-  }
-
-  return features;
-}
-
-function getStackForTarget(target) {
-  switch (target) {
-    case 'android':
-      return { language: 'kotlin', framework: 'android-jetpack-compose', build: 'gradle', test: 'junit' };
-    case 'web':
-      return { language: 'javascript', framework: 'vanilla', build: 'none', test: 'node-test' };
-    case 'backend':
-      return { language: 'javascript', framework: 'express', build: 'npm', test: 'node-test' };
-    case 'cli':
-      return { language: 'javascript', framework: 'node', build: 'none', test: 'node-test' };
-    default:
-      return { language: 'javascript', framework: 'vanilla', build: 'none', test: 'node-test' };
+    return { success: false, error: err.message, status: 'BLOCKED' };
   }
 }
 
-function guessComponentType(feature, target) {
-  const name = (feature.name || '').toLowerCase();
-  if (name.includes('api') || name.includes('server') || name.includes('database')) return 'backend';
-  if (name.includes('screen') || name.includes('page') || name.includes('ui') || name.includes('button')) return 'frontend';
-  return target === 'backend' ? 'backend' : 'frontend';
+/**
+ * Resume execution from saved state.
+ */
+export async function resumeProject(options = {}) {
+  const state = loadState();
+  if (!state) throw new Error('No state to resume.');
+
+  logger.logInit(`Resuming JARVIS from phase: ${state.phase}`);
+
+  if (state.phase === ORCHESTRATOR_PHASES.INIT) {
+    await runAnalysis(state, options);
+    await runArchitecture(state, options);
+    await runUxPlan(state, options);
+    await runTaskPlan(state, options);
+    await executeTaskQueue(state, options);
+    return runVerification(state, options);
+  } else if (state.phase === ORCHESTRATOR_PHASES.ANALYSIS) {
+    await runArchitecture(state, options);
+    await runUxPlan(state, options);
+    await runTaskPlan(state, options);
+    await executeTaskQueue(state, options);
+    return runVerification(state, options);
+  } else if (state.phase === ORCHESTRATOR_PHASES.ARCHITECTURE) {
+    await runUxPlan(state, options);
+    await runTaskPlan(state, options);
+    await executeTaskQueue(state, options);
+    return runVerification(state, options);
+  } else if (state.phase === ORCHESTRATOR_PHASES.UX_PLAN) {
+    await runTaskPlan(state, options);
+    await executeTaskQueue(state, options);
+    return runVerification(state, options);
+  } else if (state.phase === ORCHESTRATOR_PHASES.IMPLEMENTATION_PLAN || state.phase === ORCHESTRATOR_PHASES.EXECUTION || state.phase === ORCHESTRATOR_PHASES.RECOVERY) {
+    await executeTaskQueue(state, options);
+    return runVerification(state, options);
+  } else if (state.phase === ORCHESTRATOR_PHASES.VERIFY || state.phase === ORCHESTRATOR_PHASES.BUILD || state.phase === ORCHESTRATOR_PHASES.TEST) {
+    return runVerification(state, options);
+  } else {
+    logger.logInit(`Project already in phase: ${state.phase}`);
+    return { success: true, state };
+  }
 }
 
 function getGateName(gate) {
@@ -405,37 +434,32 @@ function getGateName(gate) {
   return names[gate] || gate;
 }
 
-export function inspectEnvironment() {
-  const tools = ['git', 'node', 'npm', 'java', 'javac', 'gradle'];
-  const available = [];
-  const missing = [];
-  const limitations = [];
-
-  for (const tool of tools) {
-    try {
-      execSync(`${tool} --version`, { stdio: 'pipe', timeout: 5000 });
-      available.push(tool);
-    } catch {
-      try {
-        execSync(`${tool} -version`, { stdio: 'pipe', timeout: 5000 });
-        available.push(tool);
-      } catch {
-        missing.push(tool);
-      }
-    }
-  }
-
-  if (missing.includes('java') || missing.includes('javac') || missing.includes('gradle')) {
-    limitations.push('Android build tools (Java/Gradle) may be incomplete in current environment');
-  }
-
-  return {
-    node_version: process.version,
-    platform: process.platform,
-    arch: process.arch,
-    tools_available: available,
-    tools_missing: missing,
-    limitations,
-  };
+// Backwards compatibility helpers
+export function analyzeRequirements(userRequest, target) {
+  const { requirements } = analyzeProduct(userRequest, { target });
+  return requirements;
 }
 
+export function createArchitecture(requirements) {
+  return designArchitecture(requirements);
+}
+
+export function createTaskPlan(requirements, architecture) {
+  const ux = designUxPlan(requirements, architecture);
+  const { taskQueue } = planTasks(requirements, architecture, ux);
+  return taskQueue.tasks;
+}
+
+export function initWorkspace(workspaceDir, architecture) {
+  if (!existsSync(workspaceDir)) mkdirSync(workspaceDir, { recursive: true });
+  try {
+    initRepo(workspaceDir);
+    createFeatureBranch('jarvis-init', workspaceDir);
+  } catch { /* skip */ }
+  return true;
+}
+
+export function verify(projectDir, options = {}) {
+  const state = loadState();
+  return runAllGates(state, projectDir, options);
+}

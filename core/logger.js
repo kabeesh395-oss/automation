@@ -72,5 +72,6 @@ export function logError(msg, details) { log('error', msg, details); }
 export function logRecovery(msg, details) { log('recovery', msg, details); }
 export function logGate(msg, details) { log('gate', msg, details); }
 export function logSecurity(msg, details) { log('security', msg, details); }
-export function logState(msg, details) { log('state', msg, details); }
-export function logInfo(msg, details) { log('info', msg, details); }
+export function logPhase(phase, msg, details) { log('plan', `[Phase: ${phase}] ${msg}`, details); }
+export function logTask(msg, details) { log('code', msg, details); }
+

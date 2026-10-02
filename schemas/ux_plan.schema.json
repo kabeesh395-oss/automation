@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UX Plan",
+  "type": "object",
+  "required": [
+    "navigation_structure",
+    "screens",
+    "user_flows",
+    "accessibility_considerations"
+  ],
+  "properties": {
+    "navigation_structure": {
+      "type": "object",
+      "required": ["pattern", "root_screen"],
+      "properties": {
+        "pattern": { "type": "string" },
+        "root_screen": { "type": "string" },
+        "routes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "purpose", "components", "states"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "purpose": { "type": "string" },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "description"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "description": { "type": "string" },
+                "interaction": { "type": "string" }
+              }
+            }
+          },
+          "states": {
+            "type": "object",
+            "required": ["initial", "loading", "empty", "error"],
+            "properties": {
+              "initial": { "type": "string" },
+              "loading": { "type": "string" },
+              "empty": { "type": "string" },
+              "error": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "user_flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "steps"],
+        "properties": {
+          "name": { "type": "string" },
+          "trigger": { "type": "string" },
+          "steps": { "type": "array", "items": { "type": "string" } },
+          "expected_outcome": { "type": "string" }
+        }
+      }
+    },
+    "visual_theme": {
+      "type": "object",
+      "properties": {
+        "color_palette": { "type": "object" },
+        "typography": { "type": "string" },
+        "dark_mode_support": { "type": "boolean" }
+      }
+    },
+    "accessibility_considerations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "created_at": { "type": "string" }
+  }
+}
