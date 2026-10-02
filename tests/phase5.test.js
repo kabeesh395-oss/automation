@@ -2,7 +2,7 @@
  * JARVIS Phase 5 Integration & Unit Tests
  */
 
-import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import assert from 'node:assert';
