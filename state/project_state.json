@@ -1,46 +1,32 @@
 {
   "schema_version": "1.0",
   "project": {
-    "id": "PRJ-MUQJNHVR",
-    "name": "android",
-    "target": "android",
-    "user_request": "Create a minimal Android application with a home screen containing a title and a button",
-    "created": "2026-10-02T05:50:09.735Z",
-    "workspace_dir": "E:\\automation\\poc-workspace"
+    "id": "PRJ-MUQJWK30",
+    "name": "",
+    "target": "web",
+    "user_request": "Create a web app with a home screen and a button",
+    "created": "2026-10-02T05:57:12.492Z"
   },
   "environment": {
     "node_version": "v24.19.0",
     "platform": "win32",
-    "arch": "x64",
-    "tools_available": [
-      "git",
-      "node",
-      "npm"
-    ],
-    "tools_missing": [
-      "java",
-      "javac",
-      "gradle"
-    ],
-    "limitations": [
-      "Android build tools (Java/Gradle) may be incomplete in current environment"
-    ]
+    "tools_available": [],
+    "tools_missing": [],
+    "limitations": []
   },
   "phase": "init",
   "phases_completed": [],
   "tasks": [
     {
-      "task_id": "T-nibc01",
-      "description": "Initialize android project structure",
+      "task_id": "T-wk3e05",
+      "description": "Initialize web project structure",
       "role": "frontend_engineer",
       "depends_on": [],
       "status": "pending",
       "inputs": [
         {
-          "language": "kotlin",
-          "framework": "android-jetpack-compose",
-          "build": "gradle",
-          "test": "junit"
+          "language": "javascript",
+          "framework": "vanilla"
         }
       ],
       "acceptance": [
@@ -52,116 +38,48 @@
       "verification": "pending",
       "retry_count": 0,
       "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
+      "created": "2026-10-02T05:57:12.506Z",
       "started": null,
       "completed": null
     },
     {
-      "task_id": "T-nibc02",
-      "description": "Implement: home-screen — Home/main screen of the application",
+      "task_id": "T-wk3e06",
+      "description": "Implement: feature-a — Feature A",
       "role": "frontend_engineer",
       "depends_on": [
-        "T-nibc01"
+        "T-wk3e05"
       ],
       "status": "pending",
       "inputs": [
         {
-          "name": "home-screen",
-          "description": "Home/main screen of the application",
-          "priority": "must"
+          "name": "feature-a",
+          "description": "Feature A"
         }
       ],
       "acceptance": [
-        "home-screen feature works as described"
+        "feature-a feature works as described"
       ],
       "output": null,
       "files_changed": [],
       "verification": "pending",
       "retry_count": 0,
       "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
+      "created": "2026-10-02T05:57:12.506Z",
       "started": null,
       "completed": null
     },
     {
-      "task_id": "T-nibc03",
-      "description": "Implement: title-display — Display a title text",
-      "role": "frontend_engineer",
-      "depends_on": [
-        "T-nibc01"
-      ],
-      "status": "pending",
-      "inputs": [
-        {
-          "name": "title-display",
-          "description": "Display a title text",
-          "priority": "must"
-        }
-      ],
-      "acceptance": [
-        "title-display feature works as described"
-      ],
-      "output": null,
-      "files_changed": [],
-      "verification": "pending",
-      "retry_count": 0,
-      "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
-      "started": null,
-      "completed": null
-    },
-    {
-      "task_id": "T-nibc04",
-      "description": "Implement: button-interaction — Interactive button element",
-      "role": "frontend_engineer",
-      "depends_on": [
-        "T-nibc01"
-      ],
-      "status": "pending",
-      "inputs": [
-        {
-          "name": "button-interaction",
-          "description": "Interactive button element",
-          "priority": "must"
-        }
-      ],
-      "acceptance": [
-        "button-interaction feature works as described"
-      ],
-      "output": null,
-      "files_changed": [],
-      "verification": "pending",
-      "retry_count": 0,
-      "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
-      "started": null,
-      "completed": null
-    },
-    {
-      "task_id": "T-nibc05",
+      "task_id": "T-wk3e07",
       "description": "Write and run tests for implemented features",
       "role": "qa_test_engineer",
       "depends_on": [
-        "T-nibc02",
-        "T-nibc03",
-        "T-nibc04"
+        "T-wk3e06"
       ],
       "status": "pending",
       "inputs": [
         {
-          "name": "home-screen",
-          "description": "Home/main screen of the application",
-          "priority": "must"
-        },
-        {
-          "name": "title-display",
-          "description": "Display a title text",
-          "priority": "must"
-        },
-        {
-          "name": "button-interaction",
-          "description": "Interactive button element",
-          "priority": "must"
+          "name": "feature-a",
+          "description": "Feature A"
         }
       ],
       "acceptance": [
@@ -173,24 +91,22 @@
       "verification": "pending",
       "retry_count": 0,
       "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
+      "created": "2026-10-02T05:57:12.506Z",
       "started": null,
       "completed": null
     },
     {
-      "task_id": "T-nibc06",
-      "description": "Build the android project and verify it compiles",
+      "task_id": "T-wk3e08",
+      "description": "Build the web project and verify it compiles",
       "role": "build_release_engineer",
       "depends_on": [
-        "T-nibc05"
+        "T-wk3e07"
       ],
       "status": "pending",
       "inputs": [
         {
-          "language": "kotlin",
-          "framework": "android-jetpack-compose",
-          "build": "gradle",
-          "test": "junit"
+          "language": "javascript",
+          "framework": "vanilla"
         }
       ],
       "acceptance": [
@@ -201,31 +117,26 @@
       "verification": "pending",
       "retry_count": 0,
       "errors": [],
-      "created": "2026-10-02T05:50:10.296Z",
+      "created": "2026-10-02T05:57:12.506Z",
       "started": null,
       "completed": null
     }
   ],
   "decisions": [
     {
-      "id": "D-muqjnib9",
-      "decision": "Stack: {\"language\":\"kotlin\",\"framework\":\"android-jetpack-compose\",\"build\":\"gradle\",\"test\":\"junit\"}",
-      "reason": "Best fit for android target",
-      "date": "2026-10-02T05:50:10.293Z"
+      "id": "D-muqjwk39",
+      "decision": "Stack: {\"language\":\"javascript\",\"framework\":\"vanilla\",\"build\":\"none\",\"test\":\"node-test\"}",
+      "reason": "Best fit for web target",
+      "date": "2026-10-02T05:57:12.501Z"
     }
   ],
   "requirements": {
-    "target": "android",
-    "user_request": "Create a minimal Android application with a home screen containing a title and a button",
+    "target": "web",
+    "user_request": "Create a web app with a home screen and a button",
     "features": [
       {
         "name": "home-screen",
         "description": "Home/main screen of the application",
-        "priority": "must"
-      },
-      {
-        "name": "title-display",
-        "description": "Display a title text",
         "priority": "must"
       },
       {
@@ -245,51 +156,39 @@
       }
     ],
     "constraints": [],
-    "created": "2026-10-02T05:50:10.289Z"
+    "created": "2026-10-02T05:57:12.494Z"
   },
   "architecture": {
-    "target": "android",
+    "target": "web",
     "stack": {
-      "language": "kotlin",
-      "framework": "android-jetpack-compose",
-      "build": "gradle",
-      "test": "junit"
+      "language": "javascript",
+      "framework": "vanilla",
+      "build": "none",
+      "test": "node-test"
     },
     "components": [
       {
         "name": "home-screen",
         "type": "frontend",
-        "description": "Home/main screen of the application"
-      },
-      {
-        "name": "title-display",
-        "type": "frontend",
-        "description": "Display a title text"
-      },
-      {
-        "name": "button-interaction",
-        "type": "frontend",
-        "description": "Interactive button element"
+        "description": "Home screen"
       }
     ],
     "api_contracts": [],
     "decisions": [],
-    "created": "2026-10-02T05:50:10.292Z"
+    "created": "2026-10-02T05:57:12.500Z"
   },
   "implementation_plan": {
-    "total_tasks": 6,
+    "total_tasks": 4,
     "roles_needed": [
       "product_analyst",
       "software_architect",
       "frontend_engineer",
-      "ux_ui_architect",
-      "ai_gemini_engineer",
       "qa_test_engineer",
       "security_engineer",
       "build_release_engineer",
       "code_reviewer"
     ],
-    "created": "2026-10-02T05:50:10.296Z"
+    "created": "2026-10-02T05:57:12.507Z"
   },
   "test_results": {
     "last_run": "",
@@ -325,5 +224,5 @@
   "errors": [],
   "retry_counts": {},
   "blockers": [],
-  "updated": "2026-10-02T05:50:10.298Z"
+  "updated": "2026-10-02T05:57:12.510Z"
 }

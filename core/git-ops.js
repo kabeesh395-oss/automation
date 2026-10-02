@@ -6,6 +6,8 @@
  */
 
 import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { logGit, logError } from './logger.js';
 
 const PROTECTED_BRANCHES = new Set(['main', 'master']);
@@ -27,6 +29,7 @@ function git(args, cwd) {
 
 /** Check if the given directory is a git repo */
 export function isGitRepo(cwd) {
+  if (cwd && existsSync(join(cwd, '.git'))) return true;
   const result = git('rev-parse --is-inside-work-tree', cwd);
   return result.ok && result.output === 'true';
 }

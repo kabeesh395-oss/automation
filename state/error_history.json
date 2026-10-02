@@ -38,5 +38,35 @@
     "attempted_fix": "fix-A",
     "result": "failed",
     "timestamp": "2026-10-02T05:46:04.323Z"
+  },
+  {
+    "id": "E-596589",
+    "task_id": "T-nibc06",
+    "signature": "84b729c1fa912bc0",
+    "log_excerpt": "\r\nERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.\r\n\r\nPlease set the JAVA_HOME variable in your environment to match the\r\nlocation of your Java installation.\r\n\nCommand failed: cmd.exe /c \"cd /d e:\\automation\\poc-workspace && gradlew.bat assembleDebug\"",
+    "root_cause": "JAVA_HOME is not set and no Java runtime/SDK was found on PATH.",
+    "attempted_fix": "Inspect host paths for Java / Android SDK installations; confirmed missing.",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:56:36.589Z"
+  },
+  {
+    "id": "E-623920",
+    "task_id": "T-nibc06",
+    "signature": "ac26ba4a38cf40cc",
+    "log_excerpt": "\r\nERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.\r\n\r\nPlease set the JAVA_HOME variable in your environment to match the\r\nlocation of your Java installation.\r\n\nCommand failed: cmd.exe /c \"cd /d e:\\automation\\poc-workspace && gradlew.bat assembleDebug\"",
+    "root_cause": "JAVA_HOME is not set and no Java runtime/SDK was found on PATH.",
+    "attempted_fix": "Inspect host paths for Java / Android SDK installations; confirmed missing.",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:57:03.920Z"
+  },
+  {
+    "id": "E-631863",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:57:11.863Z"
   }
 ]

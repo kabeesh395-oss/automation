@@ -21,7 +21,13 @@ export function computeSignature(errorType, errorMessage, context = '') {
 export function classifyError(logOutput) {
   const lower = logOutput.toLowerCase();
 
-  if (lower.includes('command not found') || lower.includes('is not recognized'))
+  if (
+    lower.includes('command not found') ||
+    lower.includes('is not recognized') ||
+    lower.includes('is not set') ||
+    lower.includes('no java command') ||
+    lower.includes('sdk not found')
+  )
     return { type: 'missing_tool', category: 'environment' };
   if (lower.includes('cannot find module') || lower.includes('module not found'))
     return { type: 'missing_dependency', category: 'dependency' };
