@@ -33,7 +33,10 @@ async function testBackend() {
   const serverPath = join(workspaceDir, 'server.js');
   if (fs.existsSync(serverPath)) {
     let content = fs.readFileSync(serverPath, 'utf-8');
-    content = content.replace("res.writeHead(500", "res.writeHead(200");
+    content = content.replace(
+      "res.writeHead(500, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ error: 'Internal Error' }));",
+      "res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok' }));"
+    );
     fs.writeFileSync(serverPath, content, 'utf-8');
   }
 
@@ -50,7 +53,10 @@ async function testBackend() {
   console.log('\nIntroducing bug to backend server...');
   const bugServerPath = join(workspaceDir, 'server.js');
   let bugContent = fs.readFileSync(bugServerPath, 'utf-8');
-  bugContent = bugContent.replace("res.writeHead(200", "res.writeHead(500");
+  bugContent = bugContent.replace(
+    "res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok' }));",
+    "res.writeHead(500, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ error: 'Internal Error' }));"
+  );
   fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
 
   killPort(5000);
@@ -62,7 +68,10 @@ async function testBackend() {
 
   // Restore 200 after test
   bugContent = fs.readFileSync(bugServerPath, 'utf-8');
-  bugContent = bugContent.replace("res.writeHead(500", "res.writeHead(200");
+  bugContent = bugContent.replace(
+    "res.writeHead(500, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ error: 'Internal Error' }));",
+    "res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok' }));"
+  );
   fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
   killPort(5000);
 }

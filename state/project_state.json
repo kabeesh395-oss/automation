@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
   "project": {
-    "id": "PRJ-MUQR5T98",
+    "id": "PRJ-MUQY32XH",
     "name": "",
     "target": "backend",
     "user_request": "dummy request",
-    "created": "2026-10-02T09:20:21.596Z",
+    "created": "2026-10-02T12:34:11.477Z",
     "workspace_dir": "E:\\automation\\acceptance_tests\\test_backend"
   },
   "environment": {
@@ -27,7 +27,7 @@
       "id": "t2",
       "status": "running",
       "description": "task 2",
-      "started_at": "2026-10-02T09:20:21.602Z",
+      "started_at": "2026-10-02T12:34:11.481Z",
       "attempts": 1
     }
   ],
@@ -69,5 +69,5 @@
   "errors": [],
   "retry_counts": {},
   "blockers": [],
-  "updated": "2026-10-02T09:20:21.602Z"
+  "updated": "2026-10-02T12:34:11.481Z"
 }
