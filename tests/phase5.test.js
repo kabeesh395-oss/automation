@@ -99,7 +99,7 @@ function testBackendAdapter() {
   mkdirSync(backendDir, { recursive: true });
   
   const serverCode = `
-const http = require('http');
+import http from 'http';
 const server = http.createServer((req, res) => {
   res.writeHead(200);
   res.end('{"success":true}');
@@ -125,7 +125,7 @@ function testWebAdapter() {
   mkdirSync(webDir, { recursive: true });
   
   const serverCode = `
-const http = require('http');
+import http from 'http';
 const server = http.createServer((req, res) => {
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.end('<html><body><h1>Web Works</h1></body></html>');
