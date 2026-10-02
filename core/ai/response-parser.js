@@ -52,9 +52,43 @@ export function parseStructuredResponse(rawText, schemaValidator = null) {
   let parsed;
   try {
     parsed = JSON.parse(jsonString);
-  } catch (err) {
-    throw new AIResponseParseError(`Failed to parse JSON from model output: ${err.message}`, rawText);
+  } catch (primaryErr) {
+    try {
+      const sanitized = sanitizeJsonString(jsonString);
+      parsed = JSON.parse(sanitized);
+    } catch {
+      throw new AIResponseParseError(`Failed to parse JSON from model output: ${primaryErr.message}`, rawText);
+    }
   }
+
+function sanitizeJsonString(str) {
+  let inString = false;
+  let escaped = false;
+  let result = '';
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === '"' && !escaped) {
+      inString = !inString;
+      result += char;
+    } else if (inString) {
+      if (char === '\n') {
+        result += '\\n';
+      } else if (char === '\r') {
+        result += '\\r';
+      } else if (char === '\t') {
+        result += '\\t';
+      } else {
+        result += char;
+      }
+      escaped = (char === '\\' && !escaped);
+    } else {
+      result += char;
+      escaped = false;
+    }
+  }
+  return result;
+}
 
   if (typeof schemaValidator === 'function') {
     const valResult = schemaValidator(parsed);

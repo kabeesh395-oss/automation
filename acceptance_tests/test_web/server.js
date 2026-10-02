@@ -9,9 +9,6 @@ const html = `
 <body>
   <h1 id="title">Welcome</h1>
   <button id="btn" onclick="document.getElementById('title').innerText = 'Clicked'">Click Me</button>
-  <script>
-    console.log("App loaded");
-  </script>
 </body>
 </html>
 `;

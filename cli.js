@@ -62,9 +62,27 @@ async function main() {
     case 'report':
       cmdReport(args[1]);
       break;
+    case 'audit':
+    case 'repair':
+      await cmdAutonomousAudit(args[1], args.slice(2).join(' '));
+      break;
     default:
       printUsage();
   }
+}
+
+async function cmdAutonomousAudit(projectDir, requirement) {
+  if (!projectDir || !requirement) {
+    console.error('Usage: node cli.js audit <projectPath> "<requirement>"');
+    process.exit(1);
+  }
+  console.log('╔══════════════════════════════════════════════════════════════╗');
+  console.log('║         JARVIS — Autonomous Audit & Repair                   ║');
+  console.log('╚══════════════════════════════════════════════════════════════╝\n');
+  const { autonomousAuditAndRepair } = await import('./core/autonomous-repair.js');
+  const result = await autonomousAuditAndRepair(projectDir, requirement);
+  console.log('\n--- AUTONOMY EXECUTION RECORD ---');
+  console.log(JSON.stringify(result, null, 2));
 }
 
 async function cmdInit(idea) {

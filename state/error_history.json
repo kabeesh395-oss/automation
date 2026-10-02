@@ -478,5 +478,355 @@
     "attempted_fix": "Set ANDROID_HOME",
     "result": "failed",
     "timestamp": "2026-10-02T07:57:49.923Z"
+  },
+  {
+    "id": "E-909083",
+    "task_id": "T_TEST_RECOVER_1790946909070_01",
+    "signature": "79924cb98a5a4363",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:15:09.083Z"
+  },
+  {
+    "id": "E-909086",
+    "task_id": "T_TEST_BLOCK_1790946909085_02",
+    "signature": "bc229295780fd43c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:15:09.086Z"
+  },
+  {
+    "id": "E-909087",
+    "task_id": "T_TEST_BLOCK_1790946909085_02",
+    "signature": "bc229295780fd43c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:15:09.087Z"
+  },
+  {
+    "id": "E-909088",
+    "task_id": "T_TEST_BLOCK_1790946909085_02",
+    "signature": "bc229295780fd43c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:15:09.088Z"
+  },
+  {
+    "id": "E-909091",
+    "task_id": "T_TEST_DUP_1790946909090_03",
+    "signature": "b44507363aedd1c8",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:15:09.091Z"
+  },
+  {
+    "id": "E-967378",
+    "task_id": "T_TEST_RECOVER_1790946967376_01",
+    "signature": "9ef666beaa5b48de",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:16:07.378Z"
+  },
+  {
+    "id": "E-967381",
+    "task_id": "T_TEST_BLOCK_1790946967380_02",
+    "signature": "fce4071ced9f1121",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:16:07.381Z"
+  },
+  {
+    "id": "E-967381",
+    "task_id": "T_TEST_BLOCK_1790946967380_02",
+    "signature": "fce4071ced9f1121",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:16:07.381Z"
+  },
+  {
+    "id": "E-967382",
+    "task_id": "T_TEST_BLOCK_1790946967380_02",
+    "signature": "fce4071ced9f1121",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:16:07.382Z"
+  },
+  {
+    "id": "E-967385",
+    "task_id": "T_TEST_DUP_1790946967384_03",
+    "signature": "7529285ff2540fa2",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:16:07.385Z"
+  },
+  {
+    "id": "E-238959",
+    "task_id": "T_TEST_RECOVER_1790948238946_01",
+    "signature": "fc532c02ea71ca63",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:37:18.959Z"
+  },
+  {
+    "id": "E-238962",
+    "task_id": "T_TEST_BLOCK_1790948238961_02",
+    "signature": "44697546a0dc5c0c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:37:18.962Z"
+  },
+  {
+    "id": "E-238963",
+    "task_id": "T_TEST_BLOCK_1790948238961_02",
+    "signature": "44697546a0dc5c0c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:37:18.963Z"
+  },
+  {
+    "id": "E-238965",
+    "task_id": "T_TEST_BLOCK_1790948238961_02",
+    "signature": "44697546a0dc5c0c",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:37:18.965Z"
+  },
+  {
+    "id": "E-238967",
+    "task_id": "T_TEST_DUP_1790948238967_03",
+    "signature": "dccd20337e5a005f",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:37:18.967Z"
+  },
+  {
+    "id": "E-947852",
+    "task_id": "T_TEST_RECOVER_1790948947850_01",
+    "signature": "4d867469e25cbff3",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:49:07.852Z"
+  },
+  {
+    "id": "E-947858",
+    "task_id": "T_TEST_BLOCK_1790948947857_02",
+    "signature": "3a4b97b61cec8599",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:49:07.858Z"
+  },
+  {
+    "id": "E-947859",
+    "task_id": "T_TEST_BLOCK_1790948947857_02",
+    "signature": "3a4b97b61cec8599",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:49:07.860Z"
+  },
+  {
+    "id": "E-947861",
+    "task_id": "T_TEST_BLOCK_1790948947857_02",
+    "signature": "3a4b97b61cec8599",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:49:07.861Z"
+  },
+  {
+    "id": "E-947864",
+    "task_id": "T_TEST_DUP_1790948947863_03",
+    "signature": "2ecd33d02096f9e1",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:49:07.864Z"
+  },
+  {
+    "id": "E-417652",
+    "task_id": "T_TEST_RECOVER_1790949417641_01",
+    "signature": "a0fbfd595e418df9",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:56:57.652Z"
+  },
+  {
+    "id": "E-417656",
+    "task_id": "T_TEST_BLOCK_1790949417655_02",
+    "signature": "50d6b0b2b198a155",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:56:57.656Z"
+  },
+  {
+    "id": "E-417658",
+    "task_id": "T_TEST_BLOCK_1790949417655_02",
+    "signature": "50d6b0b2b198a155",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:56:57.658Z"
+  },
+  {
+    "id": "E-417659",
+    "task_id": "T_TEST_BLOCK_1790949417655_02",
+    "signature": "50d6b0b2b198a155",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:56:57.659Z"
+  },
+  {
+    "id": "E-417663",
+    "task_id": "T_TEST_DUP_1790949417662_03",
+    "signature": "e87fe5acfd080cad",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:56:57.663Z"
+  },
+  {
+    "id": "E-599472",
+    "task_id": "T_TEST_RECOVER_1790949599469_01",
+    "signature": "0f0b58f128d7d80a",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T13:59:59.472Z"
+  },
+  {
+    "id": "E-599475",
+    "task_id": "T_TEST_BLOCK_1790949599474_02",
+    "signature": "d98a44fc8405f740",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:59:59.475Z"
+  },
+  {
+    "id": "E-599476",
+    "task_id": "T_TEST_BLOCK_1790949599474_02",
+    "signature": "d98a44fc8405f740",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:59:59.476Z"
+  },
+  {
+    "id": "E-599477",
+    "task_id": "T_TEST_BLOCK_1790949599474_02",
+    "signature": "d98a44fc8405f740",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:59:59.477Z"
+  },
+  {
+    "id": "E-599479",
+    "task_id": "T_TEST_DUP_1790949599479_03",
+    "signature": "311da197864b38bd",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T13:59:59.479Z"
+  },
+  {
+    "id": "E-741027",
+    "task_id": "T_TEST_RECOVER_1790949741023_01",
+    "signature": "9d7f4149d3921554",
+    "log_excerpt": "Compilation error: unresolved reference UserEntity at line 12",
+    "root_cause": "unresolved reference",
+    "attempted_fix": "Add import com.app.domain.UserEntity",
+    "result": "success",
+    "timestamp": "2026-10-02T14:02:21.027Z"
+  },
+  {
+    "id": "E-741031",
+    "task_id": "T_TEST_BLOCK_1790949741029_02",
+    "signature": "6d261fbface04ed5",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 2G",
+    "result": "failed",
+    "timestamp": "2026-10-02T14:02:21.031Z"
+  },
+  {
+    "id": "E-741032",
+    "task_id": "T_TEST_BLOCK_1790949741029_02",
+    "signature": "6d261fbface04ed5",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Increase heap to 4G",
+    "result": "failed",
+    "timestamp": "2026-10-02T14:02:21.032Z"
+  },
+  {
+    "id": "E-741034",
+    "task_id": "T_TEST_BLOCK_1790949741029_02",
+    "signature": "6d261fbface04ed5",
+    "log_excerpt": "Fatal Error: Out of memory during compilation",
+    "root_cause": "OOM",
+    "attempted_fix": "Enable daemon cache",
+    "result": "failed",
+    "timestamp": "2026-10-02T14:02:21.034Z"
+  },
+  {
+    "id": "E-741037",
+    "task_id": "T_TEST_DUP_1790949741036_03",
+    "signature": "bec9a0922e9f8423",
+    "log_excerpt": "Error: SDK location not found",
+    "root_cause": "missing sdk",
+    "attempted_fix": "Set ANDROID_HOME",
+    "result": "failed",
+    "timestamp": "2026-10-02T14:02:21.037Z"
   }
 ]

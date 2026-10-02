@@ -1,12 +1,11 @@
 {
   "schema_version": "1.0",
   "project": {
-    "id": "PRJ-MUQY32XH",
+    "id": "PRJ-MUR18GCM",
     "name": "",
-    "target": "backend",
-    "user_request": "dummy request",
-    "created": "2026-10-02T12:34:11.477Z",
-    "workspace_dir": "E:\\automation\\acceptance_tests\\test_backend"
+    "target": "android",
+    "user_request": "Resume Test",
+    "created": "2026-10-02T14:02:20.998Z"
   },
   "environment": {
     "node_version": "v24.19.0",
@@ -15,24 +14,36 @@
     "tools_missing": [],
     "limitations": []
   },
-  "phase": "EXECUTION",
+  "phase": "ANALYSIS",
   "phases_completed": [],
-  "tasks": [
-    {
-      "id": "t1",
-      "status": "done",
-      "description": "task 1"
-    },
-    {
-      "id": "t2",
-      "status": "running",
-      "description": "task 2",
-      "started_at": "2026-10-02T12:34:11.481Z",
-      "attempts": 1
-    }
-  ],
+  "tasks": [],
   "decisions": [],
-  "requirements": null,
+  "requirements": {
+    "app_name": "test-app",
+    "target_platform": "android",
+    "problem_statement": "test problem",
+    "target_users": [
+      "test-user"
+    ],
+    "core_features": [
+      {
+        "id": "F001",
+        "name": "feat",
+        "description": "desc",
+        "priority": "must",
+        "source": "explicit"
+      }
+    ],
+    "non_functional_requirements": [
+      {
+        "name": "nf",
+        "description": "desc"
+      }
+    ],
+    "acceptance_criteria": [
+      "test"
+    ]
+  },
   "architecture": null,
   "implementation_plan": null,
   "test_results": {
@@ -69,5 +80,5 @@
   "errors": [],
   "retry_counts": {},
   "blockers": [],
-  "updated": "2026-10-02T12:34:11.481Z"
+  "updated": "2026-10-02T14:02:20.998Z"
 }
