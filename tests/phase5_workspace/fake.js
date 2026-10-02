@@ -1,0 +1,1 @@
+function fetchUsers() { return [{id: 1, name: "mock"}]; }

@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-02T08:59:41.503Z","command":"test","verdict":"BLOCKED","reason":"No runtime execution evidence provided"}
+{"timestamp":"2026-10-02T08:59:41.517Z","exitCode":0,"stdout":"Success","verdict":"PASS","reason":"Command executed successfully"}
