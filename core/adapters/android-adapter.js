@@ -13,9 +13,19 @@ export class AndroidAdapter {
   }
 
   _findAdb() {
-    const androidHome = process.env.ANDROID_HOME || 'C:\\Android\\sdk';
-    const adbPath = join(androidHome, 'platform-tools', 'adb.exe');
-    return existsSync(adbPath) ? adbPath : 'adb';
+    const candidates = [
+      process.env.ADB_PATH,
+      process.env.ANDROID_HOME ? join(process.env.ANDROID_HOME, 'platform-tools', 'adb.exe') : null,
+      process.env.ANDROID_SDK_ROOT ? join(process.env.ANDROID_SDK_ROOT, 'platform-tools', 'adb.exe') : null,
+      'C:\\Android\\sdk\\platform-tools\\adb.exe',
+      process.env.LOCALAPPDATA ? join(process.env.LOCALAPPDATA, 'Android', 'Sdk', 'platform-tools', 'adb.exe') : null,
+      'adb'
+    ].filter(Boolean);
+    for (const c of candidates) {
+      if (c === 'adb') return 'adb';
+      if (existsSync(c)) return c;
+    }
+    return 'adb';
   }
 
   _runAdb(args, timeoutMs = 60000) {
@@ -42,8 +52,11 @@ export class AndroidAdapter {
   getConnectedDevices() {
     const res = this._runAdb('devices');
     if (!res.ok) return [];
-    const lines = res.stdout.split('\n').filter(l => l.trim().length > 0);
-    return lines.slice(1).filter(l => !l.includes('daemon')).map(l => l.split('\t')[0]);
+    const lines = res.stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    return lines
+      .filter(l => !l.startsWith('*') && !l.startsWith('List of devices'))
+      .filter(l => l.includes('\tdevice') || l.endsWith(' device'))
+      .map(l => l.split(/\s+/)[0]);
   }
 
   /**

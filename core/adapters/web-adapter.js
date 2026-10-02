@@ -55,6 +55,7 @@ const { exec } = require('child_process');
     page.on('console', msg => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
+    page.on('pageerror', err => errors.push(err.message));
 
     const response = await page.goto('${targetUrl}', { waitUntil: 'networkidle', timeout: 15000 });
     
@@ -79,6 +80,10 @@ const { exec } = require('child_process');
       await page.waitForTimeout(1000); // Wait for potential state changes
       const newHtml = await page.content();
       stateChanged = initialHtml !== newHtml;
+      if (stateChanged && newHtml.length === initialHtml.length) {
+         // same length, different content?
+         console.log("HTML slightly changed!");
+      }
     }
     
     await page.screenshot({ path: '${screenshotPath.replace(/\\/g, '\\\\')}' });
@@ -86,7 +91,7 @@ const { exec } = require('child_process');
     const html = await page.content();
     
     console.log(JSON.stringify({
-      ok: response.ok() && (interaction === null || stateChanged),
+      ok: response.ok() && errors.length === 0 && (interaction === null || stateChanged),
       status: response.status(),
       errors,
       interaction,
@@ -98,24 +103,53 @@ const { exec } = require('child_process');
     console.error(JSON.stringify({ ok: false, error: err.message }));
   } finally {
     if (browser) await browser.close();
-    server.kill();
+    try {
+      if (server && server.pid) {
+        if (process.platform === 'win32') {
+          require('child_process').execSync('taskkill /F /T /PID ' + server.pid, { stdio: 'ignore' });
+        } else {
+          server.kill('SIGINT');
+        }
+      }
+    } catch(e) {}
+    process.exit(0);
   }
 })();
     `;
 
     writeFileSync(scriptPath, scriptContent, 'utf-8');
 
+    const clearPort = () => {
+      try {
+        const url = new URL(targetUrl);
+        if (url.port && process.platform === 'win32') {
+          const out = execSync(`netstat -ano | findstr :${url.port}`, { encoding: 'utf-8' });
+          for (const line of out.trim().split(/\r?\n/)) {
+            const pid = line.trim().split(/\s+/).pop();
+            if (pid && pid !== '0') {
+              try { execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' }); } catch {}
+            }
+          }
+        }
+      } catch {}
+    };
+
+    clearPort();
+
     try {
-      const stdout = execSync(`node ${scriptName}`, { cwd: this.workspaceDir, encoding: 'utf-8', timeout: 30000 });
+      const stdout = execSync(`node ${scriptName}`, { cwd: this.workspaceDir, encoding: 'utf-8', timeout: 60000 });
       let result;
       try {
-        result = JSON.parse(stdout.trim());
+        const jsonStr = stdout.substring(stdout.indexOf('{'));
+        result = JSON.parse(jsonStr.trim());
       } catch (e) {
         result = { ok: false, stdout };
       }
       return { ok: result.ok, stdout, result, exitCode: 0, screenshotPath };
     } catch (err) {
-      return { ok: false, stderr: err.stderr || err.message, exitCode: 1 };
+      return { ok: false, stderr: err.stderr || err.message || String(err), exitCode: 1 };
+    } finally {
+      clearPort();
     }
   }
 }

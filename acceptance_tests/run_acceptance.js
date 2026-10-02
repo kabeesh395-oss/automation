@@ -5,19 +5,39 @@ import { WebAdapter } from '../core/adapters/web-adapter.js';
 import { FakeDetector } from '../core/fake-detector.js';
 import { runAllGates } from '../core/gate-runner.js';
 import { resolve, join } from 'node:path';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+
+function killPort(port) {
+  if (process.platform !== 'win32') return;
+  try {
+    const stdout = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf-8' });
+    const lines = stdout.trim().split(/\r?\n/);
+    const killed = new Set();
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      const pid = parts[parts.length - 1];
+      if (pid && pid !== '0' && !killed.has(pid)) {
+        killed.add(pid);
+        try { execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' }); } catch {}
+      }
+    }
+  } catch {}
+}
 
 async function testBackend() {
   console.log('--- TEST C: BACKEND ---');
   const workspaceDir = resolve(import.meta.dirname, './test_backend');
   
   // Restore 200 before test
-  const fs = await import('node:fs');
   const serverPath = join(workspaceDir, 'server.js');
   if (fs.existsSync(serverPath)) {
     let content = fs.readFileSync(serverPath, 'utf-8');
     content = content.replace("res.writeHead(500", "res.writeHead(200");
     fs.writeFileSync(serverPath, content, 'utf-8');
   }
+
+  killPort(5000);
 
   // 1. Working Application PASS test
   console.log('Running Backend Verification on working server...');
@@ -27,24 +47,31 @@ async function testBackend() {
   console.log('Evidence:', result.stdout.substring(0, 100));
 
   // 2. Introduce bug and test FAIL detection
-  console.log('\\nIntroducing bug to backend server...');
+  console.log('\nIntroducing bug to backend server...');
   const bugServerPath = join(workspaceDir, 'server.js');
   let bugContent = fs.readFileSync(bugServerPath, 'utf-8');
   bugContent = bugContent.replace("res.writeHead(200", "res.writeHead(500");
   fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
 
+  killPort(5000);
+
   console.log('Running Backend Verification on broken server...');
   const brokenResult = adapter.runVerification('npm start', 'http://localhost:5000', '/');
   console.log('Result:', brokenResult.status === 200 ? 'PASS' : 'FAIL', '(Expected FAIL due to 500 status)');
   console.log('Evidence Status Code:', brokenResult.status);
+
+  // Restore 200 after test
+  bugContent = fs.readFileSync(bugServerPath, 'utf-8');
+  bugContent = bugContent.replace("res.writeHead(500", "res.writeHead(200");
+  fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
+  killPort(5000);
 }
 
 async function testWeb() {
-  console.log('\\n--- TEST B: WEB ---');
+  console.log('\n--- TEST B: WEB ---');
   const workspaceDir = resolve(import.meta.dirname, './test_web');
   
   // Restore before test
-  const fs = await import('node:fs');
   const serverPath = join(workspaceDir, 'server.js');
   if (fs.existsSync(serverPath)) {
     let content = fs.readFileSync(serverPath, 'utf-8');
@@ -60,29 +87,31 @@ async function testWeb() {
     return;
   }
   
-  const result = adapter.runVerification('npm start', 'http://localhost:5001');
+  killPort(5001);
+  const result = await adapter.runVerification('npm start', 'http://localhost:5001');
   console.log('Result:', result.ok ? 'PASS' : 'FAIL');
   if (result.ok) {
     console.log('Evidence: Screenshot captured at', result.screenshotPath);
     console.log('DOM length:', result.result?.htmlLength);
   } else {
-    console.log('Failure Reason:', result.stderr || result.stdout || result.result?.error);
+    console.log('Failure Reason:', result);
   }
 
   // Introduce bug (crash page)
-  console.log('\\nIntroducing bug to web app...');
+  console.log('\nIntroducing bug to web app...');
   const bugServerPath = join(workspaceDir, 'server.js');
   let bugContent = fs.readFileSync(bugServerPath, 'utf-8');
   bugContent = bugContent.replace('console.log("App loaded");', 'throw new Error("UI Crash");');
   fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
 
   console.log('Running Web Verification on broken app...');
-  const brokenResult = adapter.runVerification('npm start', 'http://localhost:5001');
+  killPort(5001);
+  const brokenResult = await adapter.runVerification('npm start', 'http://localhost:5001');
   console.log('Result:', brokenResult.ok ? 'PASS' : 'FAIL', '(Expected FAIL or errors collected)');
   console.log('Evidence Errors:', brokenResult.result?.errors);
   console.log('Interaction:', brokenResult.result?.interaction, 'State Changed:', brokenResult.result?.stateChanged);
   
-  console.log('\\n--- PART 5: REAL RECOVERY PROOF (WEB) ---');
+  console.log('\n--- PART 5: REAL RECOVERY PROOF (WEB) ---');
   // 4. Run JARVIS recovery (mocking the AI fix)
   console.log('Diagnosing failure...');
   console.log('Repairing web app...');
@@ -93,15 +122,16 @@ async function testWeb() {
   fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
   
   console.log('Rerunning verification after repair...');
-  const repairedResult = adapter.runVerification('npm start', 'http://localhost:5001');
+  killPort(5001);
+  const repairedResult = await adapter.runVerification('npm start', 'http://localhost:5001');
   console.log('Result:', repairedResult.ok ? 'PASS' : 'FAIL');
   console.log('Interaction:', repairedResult.result?.interaction, 'State Changed:', repairedResult.result?.stateChanged);
+  killPort(5001);
 }
 
 async function testFakeDetector() {
-  console.log('\\n--- FAKE-FUNCTIONALITY TEST ---');
+  console.log('\n--- FAKE-FUNCTIONALITY TEST ---');
   const detector = new FakeDetector(resolve(import.meta.dirname, '.'));
-  const fs = await import('node:fs');
   const fakeFile = resolve(import.meta.dirname, 'fake_test.js');
   
   // 1. Fake behavior
@@ -120,9 +150,8 @@ async function testFakeDetector() {
 }
 
 async function testGitSafety() {
-  console.log('\\n--- GIT SAFETY & RECOVERY TEST ---');
+  console.log('\n--- GIT SAFETY & RECOVERY TEST ---');
   const { createCheckpoint, rollbackToCheckpoint, initRepo } = await import('../core/git-ops.js');
-  const fs = await import('node:fs');
   const gitDir = resolve(import.meta.dirname, 'test_git');
   if (!fs.existsSync(gitDir)) fs.mkdirSync(gitDir);
   initRepo(gitDir);
@@ -130,7 +159,6 @@ async function testGitSafety() {
   const file1 = join(gitDir, 'app.js');
   fs.writeFileSync(file1, 'console.log("version 1");', 'utf-8');
   
-  const execSync = (await import('node:child_process')).execSync;
   try { execSync('git add . && git commit -m "init"', { cwd: gitDir }); } catch {}
   
   // Unrelated uncommitted user change
@@ -151,9 +179,7 @@ async function testGitSafety() {
 }
 
 async function testResume() {
-  console.log('\\n--- RESUME TEST ---');
-  const { createProjectState, saveState, STATE_DIR } = await import('../core/state-manager.js');
-  const fs = await import('node:fs');
+  console.log('\n--- RESUME TEST ---');
   const { resumeProject } = await import('../core/orchestrator.js');
   
   // mock a state file

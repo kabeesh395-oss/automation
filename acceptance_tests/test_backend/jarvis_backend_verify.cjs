@@ -16,13 +16,23 @@ const http = require('http');
     shell: process.platform === 'win32'
   });
 
+  function killProc() {
+    try {
+      if (process.platform === 'win32' && serverProc && serverProc.pid) {
+        require('child_process').execSync('taskkill /F /T /PID ' + serverProc.pid, { stdio: 'ignore' });
+      } else if (serverProc) {
+        serverProc.kill();
+      }
+    } catch(e) {}
+  }
+
   serverProc.stdout.on('data', (data) => {
     const text = data.toString();
     stdoutLog += text;
     if (!isReady && (text.includes('listening') || text.includes('started') || text.includes('http://'))) {
       isReady = true;
       executeVerificationReq('http://localhost:5000/').then(res => {
-        serverProc.kill();
+        killProc();
         console.log(JSON.stringify({ ok: res.ok, status: res.status, data: res.data, stdout: stdoutLog, stderr: stderrLog }));
         process.exit(0);
       });
@@ -35,7 +45,7 @@ const http = require('http');
 
   setTimeout(() => {
     if (!isReady) {
-      serverProc.kill();
+      killProc();
       console.log(JSON.stringify({ ok: false, status: 'STARTUP_TIMEOUT', stdout: stdoutLog, stderr: stderrLog }));
       process.exit(1);
     }

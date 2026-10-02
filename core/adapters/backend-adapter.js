@@ -36,13 +36,23 @@ const http = require('http');
     shell: process.platform === 'win32'
   });
 
+  function killProc() {
+    try {
+      if (process.platform === 'win32' && serverProc && serverProc.pid) {
+        require('child_process').execSync('taskkill /F /T /PID ' + serverProc.pid, { stdio: 'ignore' });
+      } else if (serverProc) {
+        serverProc.kill();
+      }
+    } catch(e) {}
+  }
+
   serverProc.stdout.on('data', (data) => {
     const text = data.toString();
     stdoutLog += text;
     if (!isReady && (text.includes('listening') || text.includes('started') || text.includes('http://'))) {
       isReady = true;
       executeVerificationReq('${targetUrl}${testEndpoint}').then(res => {
-        serverProc.kill();
+        killProc();
         console.log(JSON.stringify({ ok: res.ok, status: res.status, data: res.data, stdout: stdoutLog, stderr: stderrLog }));
         process.exit(0);
       });
@@ -55,7 +65,7 @@ const http = require('http');
 
   setTimeout(() => {
     if (!isReady) {
-      serverProc.kill();
+      killProc();
       console.log(JSON.stringify({ ok: false, status: 'STARTUP_TIMEOUT', stdout: stdoutLog, stderr: stderrLog }));
       process.exit(1);
     }
@@ -77,6 +87,23 @@ async function executeVerificationReq(url) {
 
     writeFileSync(scriptPath, scriptContent, 'utf-8');
 
+    const clearPort = () => {
+      try {
+        const url = new URL(targetUrl);
+        if (url.port && process.platform === 'win32') {
+          const out = execSync(`netstat -ano | findstr :${url.port}`, { encoding: 'utf-8' });
+          for (const line of out.trim().split(/\r?\n/)) {
+            const pid = line.trim().split(/\s+/).pop();
+            if (pid && pid !== '0') {
+              try { execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' }); } catch {}
+            }
+          }
+        }
+      } catch {}
+    };
+
+    clearPort();
+
     try {
       const stdout = execSync(`node ${scriptName}`, { cwd: this.workspaceDir, encoding: 'utf-8', timeout: 30000 });
       let result;
@@ -88,6 +115,8 @@ async function executeVerificationReq(url) {
       return { ok: result.ok, status: result.status, data: result.data, stdout: result.stdout, stderr: result.stderr, exitCode: 0 };
     } catch (err) {
       return { ok: false, stderr: err.stderr || err.message, exitCode: 1 };
+    } finally {
+      clearPort();
     }
   }
 }

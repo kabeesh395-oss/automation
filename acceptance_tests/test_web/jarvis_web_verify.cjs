@@ -18,6 +18,7 @@ const { exec } = require('child_process');
     page.on('console', msg => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
+    page.on('pageerror', err => errors.push(err.message));
 
     const response = await page.goto('http://localhost:5001', { waitUntil: 'networkidle', timeout: 15000 });
     
@@ -42,6 +43,10 @@ const { exec } = require('child_process');
       await page.waitForTimeout(1000); // Wait for potential state changes
       const newHtml = await page.content();
       stateChanged = initialHtml !== newHtml;
+      if (stateChanged && newHtml.length === initialHtml.length) {
+         // same length, different content?
+         console.log("HTML slightly changed!");
+      }
     }
     
     await page.screenshot({ path: 'E:\\automation\\acceptance_tests\\test_web\\jarvis_web_screenshot.png' });
@@ -49,7 +54,7 @@ const { exec } = require('child_process');
     const html = await page.content();
     
     console.log(JSON.stringify({
-      ok: response.ok() && (interaction === null || stateChanged),
+      ok: response.ok() && errors.length === 0 && (interaction === null || stateChanged),
       status: response.status(),
       errors,
       interaction,
@@ -61,7 +66,16 @@ const { exec } = require('child_process');
     console.error(JSON.stringify({ ok: false, error: err.message }));
   } finally {
     if (browser) await browser.close();
-    server.kill();
+    try {
+      if (server && server.pid) {
+        if (process.platform === 'win32') {
+          require('child_process').execSync('taskkill /F /T /PID ' + server.pid, { stdio: 'ignore' });
+        } else {
+          server.kill('SIGINT');
+        }
+      }
+    } catch(e) {}
+    process.exit(0);
   }
 })();
     
