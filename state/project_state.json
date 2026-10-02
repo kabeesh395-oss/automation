@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
   "project": {
-    "id": "PRJ-MUQO871Y",
+    "id": "PRJ-MUQQR9BV",
     "name": "",
-    "target": "android",
-    "user_request": "Build a fitness habit tracker app",
-    "created": "2026-10-02T07:58:13.942Z",
-    "workspace_dir": "E:\\automation\\poc-workspace"
+    "target": "backend",
+    "user_request": "dummy request",
+    "created": "2026-10-02T09:09:02.587Z",
+    "workspace_dir": "E:\\automation\\acceptance_tests\\test_backend"
   },
   "environment": {
     "node_version": "v24.19.0",
@@ -15,9 +15,22 @@
     "tools_missing": [],
     "limitations": []
   },
-  "phase": "BLOCKED",
+  "phase": "EXECUTION",
   "phases_completed": [],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "t1",
+      "status": "done",
+      "description": "task 1"
+    },
+    {
+      "id": "t2",
+      "status": "running",
+      "description": "task 2",
+      "started_at": "2026-10-02T09:09:02.593Z",
+      "attempts": 1
+    }
+  ],
   "decisions": [],
   "requirements": null,
   "architecture": null,
@@ -55,12 +68,6 @@
   "gate_evidence": {},
   "errors": [],
   "retry_counts": {},
-  "blockers": [
-    {
-      "error": "AI provider credentials missing for [gemini]. Set GEMINI_API_KEY or GOOGLE_API_KEY environment variable.",
-      "stage": "orchestrator",
-      "reason": "Missing AI credentials (GEMINI_API_KEY / GOOGLE_API_KEY)"
-    }
-  ],
-  "updated": "2026-10-02T07:58:14.497Z"
+  "blockers": [],
+  "updated": "2026-10-02T09:09:02.593Z"
 }

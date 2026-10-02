@@ -10,6 +10,15 @@ async function testBackend() {
   console.log('--- TEST C: BACKEND ---');
   const workspaceDir = resolve(import.meta.dirname, './test_backend');
   
+  // Restore 200 before test
+  const fs = await import('node:fs');
+  const serverPath = join(workspaceDir, 'server.js');
+  if (fs.existsSync(serverPath)) {
+    let content = fs.readFileSync(serverPath, 'utf-8');
+    content = content.replace("res.writeHead(500", "res.writeHead(200");
+    fs.writeFileSync(serverPath, content, 'utf-8');
+  }
+
   // 1. Working Application PASS test
   console.log('Running Backend Verification on working server...');
   const adapter = new BackendAdapter(workspaceDir);
@@ -19,11 +28,10 @@ async function testBackend() {
 
   // 2. Introduce bug and test FAIL detection
   console.log('\\nIntroducing bug to backend server...');
-  const fs = await import('node:fs');
-  const serverPath = join(workspaceDir, 'server.js');
-  let content = fs.readFileSync(serverPath, 'utf-8');
-  content = content.replace("res.writeHead(200", "res.writeHead(500");
-  fs.writeFileSync(serverPath, content, 'utf-8');
+  const bugServerPath = join(workspaceDir, 'server.js');
+  let bugContent = fs.readFileSync(bugServerPath, 'utf-8');
+  bugContent = bugContent.replace("res.writeHead(200", "res.writeHead(500");
+  fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
 
   console.log('Running Backend Verification on broken server...');
   const brokenResult = adapter.runVerification('npm start', 'http://localhost:5000', '/');
@@ -34,6 +42,15 @@ async function testBackend() {
 async function testWeb() {
   console.log('\\n--- TEST B: WEB ---');
   const workspaceDir = resolve(import.meta.dirname, './test_web');
+  
+  // Restore before test
+  const fs = await import('node:fs');
+  const serverPath = join(workspaceDir, 'server.js');
+  if (fs.existsSync(serverPath)) {
+    let content = fs.readFileSync(serverPath, 'utf-8');
+    content = content.replace('throw new Error("UI Crash");', 'console.log("App loaded");');
+    fs.writeFileSync(serverPath, content, 'utf-8');
+  }
   
   console.log('Running Web Verification on working app...');
   const adapter = new WebAdapter(workspaceDir);
@@ -52,11 +69,10 @@ async function testWeb() {
 
   // Introduce bug (crash page)
   console.log('\\nIntroducing bug to web app...');
-  const fs = await import('node:fs');
-  const serverPath = join(workspaceDir, 'server.js');
-  let content = fs.readFileSync(serverPath, 'utf-8');
-  content = content.replace('console.log("App loaded");', 'throw new Error("UI Crash");');
-  fs.writeFileSync(serverPath, content, 'utf-8');
+  const bugServerPath = join(workspaceDir, 'server.js');
+  let bugContent = fs.readFileSync(bugServerPath, 'utf-8');
+  bugContent = bugContent.replace('console.log("App loaded");', 'throw new Error("UI Crash");');
+  fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
 
   console.log('Running Web Verification on broken app...');
   const brokenResult = adapter.runVerification('npm start', 'http://localhost:5001');
