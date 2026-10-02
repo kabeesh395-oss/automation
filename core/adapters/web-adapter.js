@@ -58,14 +58,39 @@ const { exec } = require('child_process');
 
     const response = await page.goto('${targetUrl}', { waitUntil: 'networkidle', timeout: 15000 });
     
+    // Initial State
+    const initialHtml = await page.content();
+    let stateChanged = false;
+    let interaction = null;
+
+    // Try interacting
+    const button = page.locator('button').first();
+    const input = page.locator('input').first();
+    
+    if (await button.isVisible()) {
+      await button.click();
+      interaction = 'clicked button';
+    } else if (await input.isVisible()) {
+      await input.fill('test');
+      interaction = 'filled input';
+    }
+    
+    if (interaction) {
+      await page.waitForTimeout(1000); // Wait for potential state changes
+      const newHtml = await page.content();
+      stateChanged = initialHtml !== newHtml;
+    }
+    
     await page.screenshot({ path: '${screenshotPath.replace(/\\/g, '\\\\')}' });
     
     const html = await page.content();
     
     console.log(JSON.stringify({
-      ok: response.ok(),
+      ok: response.ok() && (interaction === null || stateChanged),
       status: response.status(),
       errors,
+      interaction,
+      stateChanged,
       htmlLength: html.length,
       htmlSnippet: html.substring(0, 1000)
     }));

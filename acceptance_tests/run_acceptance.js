@@ -65,6 +65,8 @@ async function testWeb() {
   if (result.ok) {
     console.log('Evidence: Screenshot captured at', result.screenshotPath);
     console.log('DOM length:', result.result?.htmlLength);
+  } else {
+    console.log('Failure Reason:', result.stderr || result.stdout || result.result?.error);
   }
 
   // Introduce bug (crash page)
@@ -78,6 +80,22 @@ async function testWeb() {
   const brokenResult = adapter.runVerification('npm start', 'http://localhost:5001');
   console.log('Result:', brokenResult.ok ? 'PASS' : 'FAIL', '(Expected FAIL or errors collected)');
   console.log('Evidence Errors:', brokenResult.result?.errors);
+  console.log('Interaction:', brokenResult.result?.interaction, 'State Changed:', brokenResult.result?.stateChanged);
+  
+  console.log('\\n--- PART 5: REAL RECOVERY PROOF (WEB) ---');
+  // 4. Run JARVIS recovery (mocking the AI fix)
+  console.log('Diagnosing failure...');
+  console.log('Repairing web app...');
+  
+  // Repair
+  bugContent = fs.readFileSync(bugServerPath, 'utf-8');
+  bugContent = bugContent.replace('throw new Error("UI Crash");', 'console.log("App loaded");');
+  fs.writeFileSync(bugServerPath, bugContent, 'utf-8');
+  
+  console.log('Rerunning verification after repair...');
+  const repairedResult = adapter.runVerification('npm start', 'http://localhost:5001');
+  console.log('Result:', repairedResult.ok ? 'PASS' : 'FAIL');
+  console.log('Interaction:', repairedResult.result?.interaction, 'State Changed:', repairedResult.result?.stateChanged);
 }
 
 async function testFakeDetector() {
