@@ -118,11 +118,12 @@ export function transitionPhase(newPhase) {
   return saveState(state);
 }
 
-// --- Task Management ---
+let taskCounter = 0;
 
 /** Create a new task */
 export function createTask({ description, role, depends_on = [], inputs = [], acceptance = [] }) {
-  const taskId = `T-${String(Date.now()).slice(-6)}`;
+  taskCounter++;
+  const taskId = `T-${Date.now().toString(36).slice(-4)}${String(taskCounter).padStart(2, '0')}`;
   return {
     task_id: taskId,
     description,

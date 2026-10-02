@@ -8,5 +8,35 @@
     "attempted_fix": "fix-A",
     "result": "failed",
     "timestamp": "2026-10-02T05:40:25.170Z"
+  },
+  {
+    "id": "E-693316",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:41:33.316Z"
+  },
+  {
+    "id": "E-850878",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:44:10.878Z"
+  },
+  {
+    "id": "E-964323",
+    "task_id": "T-001",
+    "signature": "SIG-TEST-001",
+    "log_excerpt": "test error",
+    "root_cause": "test",
+    "attempted_fix": "fix-A",
+    "result": "failed",
+    "timestamp": "2026-10-02T05:46:04.323Z"
   }
 ]
