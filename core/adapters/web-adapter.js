@@ -31,7 +31,7 @@ export class WebAdapter {
       return { ok: false, status: 'NOT_CONFIGURED', error: 'Playwright tooling not available' };
     }
 
-    const scriptName = 'jarvis_web_verify.js';
+    const scriptName = 'jarvis_web_verify.cjs';
     const scriptPath = join(this.workspaceDir, scriptName);
     const screenshotPath = join(this.workspaceDir, 'jarvis_web_screenshot.png');
 

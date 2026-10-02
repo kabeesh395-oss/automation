@@ -15,7 +15,7 @@ export class BackendAdapter {
    * Starts the server, waits for readiness, runs tests against it synchronously via script.
    */
   runVerification(startCmd = 'npm start', targetUrl = 'http://localhost:3000', testEndpoint = '/') {
-    const scriptName = 'jarvis_backend_verify.js';
+    const scriptName = 'jarvis_backend_verify.cjs';
     const scriptPath = join(this.workspaceDir, scriptName);
 
     const scriptContent = `
