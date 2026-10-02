@@ -16,6 +16,7 @@
 
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { execSync } from 'node:child_process';
 import {
   createProjectState, saveState, loadState, updateState, transitionPhase,
   createTask, addTask, updateTask, getNextRunnableTasks, ensureStateDir,
@@ -403,3 +404,38 @@ function getGateName(gate) {
   const names = { g1: 'requirements', g2: 'build', g3: 'tests', g4: 'runtime', g5: 'feature', g6: 'security', g7: 'release' };
   return names[gate] || gate;
 }
+
+export function inspectEnvironment() {
+  const tools = ['git', 'node', 'npm', 'java', 'javac', 'gradle'];
+  const available = [];
+  const missing = [];
+  const limitations = [];
+
+  for (const tool of tools) {
+    try {
+      execSync(`${tool} --version`, { stdio: 'pipe', timeout: 5000 });
+      available.push(tool);
+    } catch {
+      try {
+        execSync(`${tool} -version`, { stdio: 'pipe', timeout: 5000 });
+        available.push(tool);
+      } catch {
+        missing.push(tool);
+      }
+    }
+  }
+
+  if (missing.includes('java') || missing.includes('javac') || missing.includes('gradle')) {
+    limitations.push('Android build tools (Java/Gradle) may be incomplete in current environment');
+  }
+
+  return {
+    node_version: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    tools_available: available,
+    tools_missing: missing,
+    limitations,
+  };
+}
+
